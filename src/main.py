@@ -19,14 +19,15 @@ Functions:
 '''
 
 client = discord.Client()
+configfile = "data/guilddata.json"
 
 
 # Setup bot
-def readConfig(jfile):
+def readConfig():
     try:
-        input_fh = open(jfile, 'r')
+        input_fh = open(configfile, 'r')
     except IOError:
-        sys.exit("Unable to open input file: " + jfile)
+        sys.exit("Unable to open input file: " + configfile)
 
     config = json.load(input_fh)
 
@@ -36,14 +37,27 @@ def readConfig(jfile):
     return config
 
 
-def writeConfig(jfile, gid, data):
-    alldata = readConfig(jfile)
+def writeConfig(gid, data):
+    alldata = readConfig()
     alldata[gid] = data
 
     try:
-        output_fh = open(jfile, 'w')
+        output_fh = open(configfile, 'w')
     except IOError:
-        sys.exit("Unable to open output file: " + jfile)
+        sys.exit("Unable to open output file: " + configfile)
+
+    # Minify output
+    json.dump(alldata, output_fh, separators=(',', ':'))
+
+
+def removeConfig(gid):
+    alldata = readConfig()
+    alldata.pop(gid)
+
+    try:
+        output_fh = open(configfile, 'w')
+    except IOError:
+        sys.exit("Unable to open output file: " + configfile)
 
     # Minify output
     json.dump(alldata, output_fh, separators=(',', ':'))
@@ -71,8 +85,7 @@ def formatDrivers(guilddata, guild):
 
 
 # Globals
-configfile = "data/guilddata.json"
-gd = readConfig(configfile)
+gd = readConfig()
 
 
 # Discord Events
@@ -131,7 +144,7 @@ async def on_message(message):
             "msg1": msg1.id,
             "numchanid": numchan.id
         }
-        writeConfig(configfile, message.guild.id, gd[message.guild.id])
+        writeConfig(message.guild.id, gd[message.guild.id])
 
         return
 
@@ -157,6 +170,37 @@ async def on_message(message):
             return
 
         print(f"Assigning {member} to {number}")
+
+    # Reset drivernos for the guild
+    elif message.content.startswith("##reset"):
+        if not message.author.guild_permissions.administrator:
+            await message.channel.send("This command can only be run by server admins.")
+            return
+
+        # TODO: For production CHECK THIS IS REALLY WANTED!
+
+        if message.guild.id not in gd:
+            await message.channel.send("Unable to reset DriverNos. It has not yet been initialised in this guild.")
+            return
+
+        # Remove drivernos from server and cached data
+        numchan = message.guild.get_channel(gd[message.guild.id]["config"]["numchanid"])
+
+        if numchan is None:
+            # TODO: Handle this better
+            print("Error: config out of sync")
+            return
+
+        msgs = [
+            await numchan.fetch_message(gd[message.guild.id]["config"]["msg0"]),
+            await numchan.fetch_message(gd[message.guild.id]["config"]["msg1"])
+        ]
+
+        for msg in msgs:
+            await msg.delete()
+
+        removeConfig(message.guild.id)
+        gd.pop(message.guild.id)
 
 
 # Control nicknames when a nickname is changed. NOT WORKING
