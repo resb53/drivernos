@@ -107,8 +107,8 @@ async def on_message(message):
             return
 
         if message.guild.id in gd:
-            await message.channel.send("This guild has already been initialised. " +
-                                       "To reset, use `.reset` and then run `##init` again.")
+            await message.channel.send(f"This guild has already been initialised. " +
+                                       "To reset, use `##reset` and then run `##init` again.")
             return
 
         numchanname = message.content[7:].strip(" ")
