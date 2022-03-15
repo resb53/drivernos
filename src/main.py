@@ -154,11 +154,7 @@ async def on_message(message):
             await message.channel.send("This command can only be run by server admins.")
             return
 
-        print(message.content)
-
         m = re.match(r"^##assign\s+<@(\d+)>\s+(\d+)", message.content)
-
-        print(m)
 
         if m is None:
             await message.channel.send("Provide a tagged user and driver number. e.g: `##assign @DriverNos 1`")
