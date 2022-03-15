@@ -136,7 +136,7 @@ async def on_message(message):
         msg0 = await numchan.send(dnos[0])
         msg1 = await numchan.send(dnos[1])
 
-        # (Re-)Initialise guild data
+        # Initialise guild data
         gd[message.guild.id] = {}
         gd[message.guild.id]["numbers"] = {}
         gd[message.guild.id]["config"] = {
@@ -154,22 +154,50 @@ async def on_message(message):
             await message.channel.send("This command can only be run by server admins.")
             return
 
-        m = re.match(r"^.assign\s+<@!(\d+)>\s+(\d+)", message.content)
+        print(message.content)
 
-        if m is not None:
-            print(f"Assigning {m.group(1)} to number {m.group(2)}")
-        else:
+        m = re.match(r"^##assign\s+<@(\d+)>\s+(\d+)", message.content)
+
+        print(m)
+
+        if m is None:
             await message.channel.send("Provide a tagged user and driver number. e.g: `##assign @DriverNos 1`")
             return
 
-        member = message.guild.get_member(m.group(1))
-        number = m.group(2)
+        member = await message.guild.fetch_member(int(m.group(1)))
+        number = int(m.group(2))
+
+        if number not in range(1, 100):
+            await message.channel.send("Driver number must be between 1 and 99.")
+            return
+
+        if member is None:
+            await message.channel.send(f"Unable to find member <@{int(m.group(1))}>")
+            return
 
         if member.bot:
             await message.channel.send("Unable to assign numbers to bots. Please tag a real user.")
             return
 
-        print(f"Assigning {member} to {number}")
+        # Assign the number in gd
+        report = ""
+
+        if member.id not in gd[message.guild.id]["numbers"].values():
+            gd[message.guild.id]["numbers"][number] = member.id
+            report = f"Driver number `{number}` assigned to <@!{member.id}>."
+        else:
+            oldnum = 0
+            for x in gd[message.guild.id]["numbers"].items():
+                if x[1] == member.id:
+                    oldnum = x[0]
+            gd[message.guild.id]["numbers"].pop(oldnum)
+            gd[message.guild.id]["numbers"][number] = member.id
+            report = f"Driver number `{number}` assigned to <@{member.id}>, and number `{oldnum}` released."
+
+        writeConfig(message.guild.id, gd[message.guild.id])
+        await message.channel.send(report)
+
+        return
 
     # Reset drivernos for the guild
     elif message.content.startswith("##reset"):
