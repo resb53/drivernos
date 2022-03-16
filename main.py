@@ -146,7 +146,13 @@ async def on_message(message):
         }
         writeConfig(message.guild.id, gd[message.guild.id])
 
+        await message.channel.send("DriverNos has been initialised in.")
+
         return
+
+    elif message.content.startswith("##test"):
+        teststring = message.content[7:].strip(" ")
+        print(teststring)
 
     # Assign a user a number
     elif message.content.startswith("##assign"):
@@ -190,6 +196,14 @@ async def on_message(message):
             gd[message.guild.id]["numbers"][number] = member.id
             report = f"Driver number `{number}` assigned to <@{member.id}>, and number `{oldnum}` released."
 
+        # Update number channel
+        dnos = formatDrivers(gd, message.guild)
+        msg0 = await numchan.fetch_message(gd[message.guild.id]["config"]["msg0"])
+        msg1 = await numchan.fetch_message(gd[message.guild.id]["config"]["msg1"])
+        await msg0.edit(content=dnos[0])
+        await msg1.edit(content=dnos[1])
+
+        # Report success
         writeConfig(message.guild.id, gd[message.guild.id])
         await message.channel.send(report)
 
@@ -226,14 +240,16 @@ async def on_message(message):
         removeConfig(message.guild.id)
         gd.pop(message.guild.id)
 
+        await message.channel.send("DriverNos has been reset.")
+
+        return
+
 
 # Control nicknames when a nickname is changed. NOT WORKING
 @client.event
 async def on_member_update(before, after):
     if before.nick != after.nick:
-        for chan in before.guild.text_channels:
-            if chan.name == "general":
-                await chan.send(f"{before.nick} changed their nickname to {after.nick}")
+        print(f"{before.nick} changed their nickname to {after.nick}")
 
 
 client.run(os.getenv("TOKEN"))
