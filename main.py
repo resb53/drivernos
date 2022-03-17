@@ -18,7 +18,10 @@ Functions:
 ##help:   Help text for using this bot.
 '''
 
-client = discord.Client()
+intents = discord.Intents.default()
+intents.members = True
+intents.messages = True
+client = discord.Client(intents=intents)
 configfile = "data/guilddata.json"
 
 
@@ -68,17 +71,17 @@ def formatDrivers(guilddata, guild):
     for i in range(1, 10):
         template[0] += f"` {i}` - "
         if guild.id in guilddata and i in guilddata[guild.id]["numbers"]:
-            template[0] += f"<@{guilddata[guild.id][i]}>"
+            template[0] += f"<@{guilddata[guild.id]['numbers'][i]}>"
         template[0] += "\n"
     for i in range(10, 50):
         template[0] += f"`{i}` - "
         if guild.id in guilddata and i in guilddata[guild.id]["numbers"]:
-            template[0] += f"<@{guilddata[guild.id][i]}>"
+            template[0] += f"<@{guilddata[guild.id]['numbers'][i]}>"
         template[0] += "\n"
     for i in range(50, 100):
         template[1] += f"`{i}` - "
         if guild.id in guilddata and i in guilddata[guild.id]["numbers"]:
-            template[1] += f"<@{guilddata[guild.id][i]}>"
+            template[1] += f"<@{guilddata[guild.id]['numbers'][i]}>"
         template[1] += "\n"
 
     return template
@@ -107,7 +110,7 @@ async def on_message(message):
             return
 
         if message.guild.id in gd:
-            await message.channel.send(f"This guild has already been initialised. " +
+            await message.channel.send("This guild has already been initialised. " +
                                        "To reset, use `##reset` and then run `##init` again.")
             return
 
@@ -160,7 +163,7 @@ async def on_message(message):
             await message.channel.send("This command can only be run by server admins.")
             return
 
-        m = re.match(r"^##assign\s+<@(\d+)>\s+(\d+)", message.content)
+        m = re.match(r"^##assign\s+<@!?(\d+)>\s+(\d+)", message.content)
 
         if m is None:
             await message.channel.send("Provide a tagged user and driver number. e.g: `##assign @DriverNos 1`")
@@ -197,6 +200,7 @@ async def on_message(message):
             report = f"Driver number `{number}` assigned to <@{member.id}>, and number `{oldnum}` released."
 
         # Update number channel
+        numchan = message.guild.get_channel(gd[message.guild.id]["config"]["numchanid"])
         dnos = formatDrivers(gd, message.guild)
         msg0 = await numchan.fetch_message(gd[message.guild.id]["config"]["msg0"])
         msg1 = await numchan.fetch_message(gd[message.guild.id]["config"]["msg1"])
@@ -249,7 +253,24 @@ async def on_message(message):
 @client.event
 async def on_member_update(before, after):
     if before.nick != after.nick:
-        print(f"{before.nick} changed their nickname to {after.nick}")
+        name = ""
+
+        if after.nick is None:
+            name = after.name
+        else:
+            name = after.nick
+
+        # If user has a driver number, prepend this to their chosen name
+        number = None
+
+        if after.id not in gd[after.guild.id]["numbers"].values():
+            return
+        else:
+            for n, id in gd[after.guild.id]["numbers"].items():
+                if id == after.id:
+                    number = n
+
+        print(f"Driver number {number} changed their name to {name}.")
 
 
 client.run(os.getenv("TOKEN"))
