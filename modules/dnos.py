@@ -78,3 +78,14 @@ def formatDrivers(guilddata, guild):
         template[1] += "\n"
 
     return template
+
+
+async def updateDrivers(guilddata, message):
+    numchan = message.guild.get_channel(guilddata[message.guild.id]["config"]["numchanid"])
+    numbers = formatDrivers(guilddata, message.guild)
+    msg0 = await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg0"])
+    msg1 = await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg1"])
+    await msg0.edit(content=numbers[0])
+    await msg1.edit(content=numbers[1])
+
+    return

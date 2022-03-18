@@ -81,6 +81,11 @@ async def assign(guilddata, message):
         await message.channel.send("Driver number must be between 1 and 99.")
         return
 
+    if number in guilddata[message.guild.id]["numbers"]:
+        await message.channel.send(f"Driver number `{number}` is already assigned to " +
+                                   f"<@!{guilddata[message.guild.id]['numbers'][number]}>.")
+        return
+
     if member is None:
         await message.channel.send(f"Unable to find member <@{int(m.group(1))}>")
         return
@@ -105,15 +110,10 @@ async def assign(guilddata, message):
         report = f"Driver number `{number}` assigned to <@{member.id}>, and number `{oldnum}` released."
 
     # Update number channel
-    numchan = message.guild.get_channel(guilddata[message.guild.id]["config"]["numchanid"])
-    numbers = dnos.formatDrivers(guilddata, message.guild)
-    msg0 = await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg0"])
-    msg1 = await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg1"])
-    await msg0.edit(content=numbers[0])
-    await msg1.edit(content=numbers[1])
+    await dnos.updateDrivers(guilddata, message)
 
     # Assign the number to the members nickname
-    await memaction.setNick(guilddata, member)
+    report += await memaction.setNick(guilddata, member)
 
     # Report success
     dnos.writeConfig(message.guild.id, guilddata[message.guild.id])

@@ -1,6 +1,7 @@
 '''
 Bot Operations for Discord Message actions.
 '''
+import discord
 import re
 
 
@@ -36,6 +37,13 @@ async def setNick(guilddata, member):
     name = f"{number} || " + name
 
     # Update user nickname
-    await member.edit(nick=name)
+    report = ""
 
-    return
+    try:
+        await member.edit(nick=name)
+    except discord.errors.Forbidden:
+        report = (f"\nUnable to modify nickname for <@!{member.id}>. "
+                  "Bot must be a higher rank than the member. "
+                  "Guild owner must manually set nickname.")
+
+    return report
