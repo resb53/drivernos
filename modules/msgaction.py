@@ -3,7 +3,7 @@ Bot Operations for Discord Message actions.
 '''
 import re
 from collections import defaultdict
-from . import dnos
+from . import dnos, memaction
 
 
 async def init(guilddata, message):
@@ -111,6 +111,9 @@ async def assign(guilddata, message):
     msg1 = await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg1"])
     await msg0.edit(content=numbers[0])
     await msg1.edit(content=numbers[1])
+
+    # Assign the number to the members nickname
+    await memaction.setNick(guilddata, member)
 
     # Report success
     dnos.writeConfig(message.guild.id, guilddata[message.guild.id])

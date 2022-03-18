@@ -47,11 +47,11 @@ async def on_message(message):
         await msgaction.reset(gd, message)
 
 
-# Control nicknames when a nickname is changed. NOT WORKING
+# Control nicknames when a nickname is changed.
 @client.event
 async def on_member_update(before, after):
     if before.nick != after.nick:
-        memaction.nickchange(gd, before, after)
+        await memaction.setNick(gd, after)
 
 
 client.run(os.getenv("TOKEN"))

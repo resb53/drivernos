@@ -1,24 +1,41 @@
 '''
 Bot Operations for Discord Message actions.
 '''
+import re
 
 
-def nickchange(guilddata, before, after):
+async def setNick(guilddata, member):
     name = ""
 
-    if after.nick is None:
-        name = after.name
+    if member.nick is None:
+        name = member.name
     else:
-        name = after.nick
+        name = member.nick
 
     # If user has a driver number, prepend this to their chosen name
     number = None
 
-    if after.id not in guilddata[after.guild.id]["numbers"].values():
+    if member.id not in guilddata[member.guild.id]["numbers"].values():
         return
     else:
-        for n, id in guilddata[after.guild.id]["numbers"].items():
-            if id == after.id:
+        for n, id in guilddata[member.guild.id]["numbers"].items():
+            if id == member.id:
                 number = n
 
-    print(f"Driver number {number} changed their name to {name}.")
+    # Remove any prepended number tags
+    ready = False
+
+    while not ready:
+        m = re.match(r"^\s*\d{1,2} \|\| (.+)$", name)
+
+        if m is not None:
+            name = m.group(1)
+        else:
+            ready = True
+
+    name = f"{number} || " + name
+
+    # Update user nickname
+    await member.edit(nick=name)
+
+    return
