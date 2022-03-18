@@ -116,7 +116,6 @@ async def assign(guilddata, message):
     report += await memaction.setNick(guilddata, member)
 
     # Report success
-    dnos.writeConfig(message.guild.id, guilddata[message.guild.id])
     await message.channel.send(report)
 
     return
@@ -150,7 +149,7 @@ async def unassign(guilddata, message):
     # Update number channel
     await dnos.updateDrivers(guilddata, message)
 
-    await message.channel.send(f"Memmber `<@!{member.id}>` unassigned from number `{number}`.")
+    await message.channel.send(f"Member <@!{member.id}> unassigned from number `{number}`.")
 
     return
 

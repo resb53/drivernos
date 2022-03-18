@@ -88,4 +88,6 @@ async def updateDrivers(guilddata, message):
     await msg0.edit(content=numbers[0])
     await msg1.edit(content=numbers[1])
 
+    writeConfig(message.guild.id, guilddata[message.guild.id])
+
     return
