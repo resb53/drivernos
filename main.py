@@ -42,6 +42,10 @@ async def on_message(message):
     elif message.content.startswith("##assign"):
         await msgaction.assign(gd, message)
 
+    # Unassign a user a number
+    elif message.content.startswith("##unassign"):
+        await msgaction.unassign(gd, message)
+
     # Reset drivernos for the guild
     elif message.content.startswith("##reset"):
         await msgaction.reset(gd, message)

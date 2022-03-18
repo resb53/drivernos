@@ -122,6 +122,39 @@ async def assign(guilddata, message):
     return
 
 
+async def unassign(guilddata, message):
+    if not message.author.guild_permissions.administrator:
+        await message.channel.send("This command can only be run by server admins.")
+        return
+
+    m = re.match(r"^##unassign\s+<@!?(\d+)>", message.content)
+
+    if m is None:
+        await message.channel.send("Provide a tagged user. e.g: `##unassign @DriverNos`")
+        return
+
+    member = await message.guild.fetch_member(int(m.group(1)))
+
+    # Check if member has a number
+    if member.id not in guilddata[message.guild.id]["numbers"].values():
+        await message.channel.send(f"Member `<@!{member.id}` is not assigned to a Driver Number.")
+        return
+
+    # Unassign member from number
+    number = 0
+    for x in guilddata[message.guild.id]["numbers"].items():
+        if x[1] == member.id:
+            number = x[0]
+    guilddata[message.guild.id]["numbers"].pop(number)
+
+    # Update number channel
+    await dnos.updateDrivers(guilddata, message)
+
+    await message.channel.send(f"Memmber `<@!{member.id}>` unassigned from number `{number}`.")
+
+    return
+
+
 async def reset(guilddata, message):
     if not message.author.guild_permissions.administrator:
         await message.channel.send("This command can only be run by server admins.")
