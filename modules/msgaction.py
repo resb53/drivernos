@@ -242,8 +242,6 @@ async def reset(guilddata, message):
         except discord.errors.NotFound:
             await message.channel.send("Unable to remove DriverNos records due to messages no longer existing.")
 
-        
-
     dnos.removeConfig(message.guild.id)
     guilddata.pop(message.guild.id)
 
