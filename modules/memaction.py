@@ -5,7 +5,7 @@ import discord
 import re
 
 
-async def setNick(guilddata, member):
+async def setNick(guilddata, member, message=None):
     name = ""
 
     if member.nick is None:
@@ -16,9 +16,7 @@ async def setNick(guilddata, member):
     # If user has a driver number, prepend this to their chosen name
     number = None
 
-    if member.id not in guilddata[member.guild.id]["numbers"].values():
-        return
-    else:
+    if member.id in guilddata[member.guild.id]["numbers"].values():
         for n, id in guilddata[member.guild.id]["numbers"].items():
             if id == member.id:
                 number = n
@@ -34,16 +32,17 @@ async def setNick(guilddata, member):
         else:
             ready = True
 
-    name = f"{number} || " + name
+    if number is not None:
+        name = f"{number} || " + name
 
     # Update user nickname
-    report = ""
-
     try:
         await member.edit(nick=name)
     except discord.errors.Forbidden:
-        report = (f"\nUnable to modify nickname for <@!{member.id}>. "
-                  "Bot must be a higher rank than the member. "
-                  "Guild owner must manually set nickname.")
+        # Silently fail if admins / higher ranks change their own nickname
+        if message is not None:
+            await message.channel.send(f"\nUnable to modify nickname for <@!{member.id}>. "
+                                       "Bot must be a higher rank than the member. "
+                                       "Guild owner must manually set nickname.")
 
-    return report
+    return

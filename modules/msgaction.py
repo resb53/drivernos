@@ -109,8 +109,6 @@ async def assign(guilddata, message):
         return
 
     # Assign the number in guilddata
-    report = ""
-
     if member.id not in guilddata[message.guild.id]["numbers"].values():
         guilddata[message.guild.id]["numbers"][number] = member.id
         report = f"Driver number `{number}` assigned to <@!{member.id}>."
@@ -127,7 +125,7 @@ async def assign(guilddata, message):
     await dnos.updateDrivers(guilddata, message)
 
     # Assign the number to the members nickname
-    report += await memaction.setNick(guilddata, member)
+    await memaction.setNick(guilddata, member, message)
 
     # Report success
     await message.channel.send(report)
@@ -161,6 +159,9 @@ async def unassign(guilddata, message):
 
     # Update number channel
     await dnos.updateDrivers(guilddata, message)
+
+    # Unassign the number to the members nickname
+    await memaction.setNick(guilddata, member, message)
 
     # Report success
     await message.channel.send(f"Member <@!{member.id}> unassigned from number `{number}`.")
@@ -205,7 +206,7 @@ async def move(guilddata, message):
             for msg in msgs:
                 await msg.delete()
         except discord.errors.NotFound:
-            await message.channel.send("Unable to remove DriverNos records due to messages no longer existing.") 
+            await message.channel.send("Unable to remove DriverNos records due to messages no longer existing.")
 
     # Update guild data
     numbers = dnos.formatDrivers(guilddata, message.guild)
