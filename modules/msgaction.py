@@ -1,6 +1,7 @@
 '''
 Bot Operations for Discord Message actions.
 '''
+import discord
 import re
 from collections import defaultdict
 from . import dnos, memaction
@@ -88,9 +89,9 @@ async def assign(guilddata, message):
         return
 
     member = await message.guild.fetch_member(int(m.group(1)))
-    number = int(m.group(2))
+    number = m.group(2)
 
-    if number not in range(1, 100):
+    if int(number) not in range(1, 100):
         await message.channel.send("Driver number must be between 1 and 99.")
         return
 
@@ -100,7 +101,7 @@ async def assign(guilddata, message):
         return
 
     if member is None:
-        await message.channel.send(f"Unable to find member <@{int(m.group(1))}>")
+        await message.channel.send(f"Unable to find member <@{m.group(1)}>")
         return
 
     if member.bot:
@@ -114,7 +115,7 @@ async def assign(guilddata, message):
         guilddata[message.guild.id]["numbers"][number] = member.id
         report = f"Driver number `{number}` assigned to <@!{member.id}>."
     else:
-        oldnum = 0
+        oldnum = "0"
         for x in guilddata[message.guild.id]["numbers"].items():
             if x[1] == member.id:
                 oldnum = x[0]
@@ -161,6 +162,7 @@ async def unassign(guilddata, message):
     # Update number channel
     await dnos.updateDrivers(guilddata, message)
 
+    # Report success
     await message.channel.send(f"Member <@!{member.id}> unassigned from number `{number}`.")
 
     return
@@ -192,13 +194,18 @@ async def move(guilddata, message):
     oldnumchan = message.guild.get_channel(guilddata[message.guild.id]["config"]["numchanid"])
 
     # Delete old numbers posts
-    msgs = [
-        await oldnumchan.fetch_message(guilddata[message.guild.id]["config"]["msg0"]),
-        await oldnumchan.fetch_message(guilddata[message.guild.id]["config"]["msg1"])
-    ]
-
-    for msg in msgs:
-        await msg.delete()
+    if oldnumchan is None:
+        await message.channel.send("Unable to remove old DriverNos records due to channel no longer existing.")
+    else:
+        try:
+            msgs = [
+                await oldnumchan.fetch_message(guilddata[message.guild.id]["config"]["msg0"]),
+                await oldnumchan.fetch_message(guilddata[message.guild.id]["config"]["msg1"])
+            ]
+            for msg in msgs:
+                await msg.delete()
+        except discord.errors.NotFound:
+            await message.channel.send("Unable to remove DriverNos records due to messages no longer existing.") 
 
     # Update guild data
     numbers = dnos.formatDrivers(guilddata, message.guild)
@@ -223,16 +230,19 @@ async def reset(guilddata, message):
     numchan = message.guild.get_channel(guilddata[message.guild.id]["config"]["numchanid"])
 
     if numchan is None:
-        await message.channel.send("Unable to remove DriverNos records due to channel no longer existing. " +
-                                   "These must be removed manually.")
+        await message.channel.send("Unable to remove DriverNos records due to channel no longer existing.")
     else:
-        msgs = [
-            await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg0"]),
-            await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg1"])
-        ]
+        try:
+            msgs = [
+                await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg0"]),
+                await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg1"])
+            ]
+            for msg in msgs:
+                await msg.delete()
+        except discord.errors.NotFound:
+            await message.channel.send("Unable to remove DriverNos records due to messages no longer existing.")
 
-        for msg in msgs:
-            await msg.delete()
+        
 
     dnos.removeConfig(message.guild.id)
     guilddata.pop(message.guild.id)

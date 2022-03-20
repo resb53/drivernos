@@ -63,31 +63,38 @@ def formatDrivers(guilddata, guild):
     template = ["", ""]
     for i in range(1, 10):
         template[0] += f"` {i}` - "
-        if guild.id in guilddata and i in guilddata[guild.id]["numbers"]:
-            template[0] += f"<@{guilddata[guild.id]['numbers'][i]}>"
+        if guild.id in guilddata and str(i) in guilddata[guild.id]["numbers"]:
+            template[0] += f"<@{guilddata[guild.id]['numbers'][str(i)]}>"
         template[0] += "\n"
     for i in range(10, 50):
         template[0] += f"`{i}` - "
-        if guild.id in guilddata and i in guilddata[guild.id]["numbers"]:
-            template[0] += f"<@{guilddata[guild.id]['numbers'][i]}>"
+        if guild.id in guilddata and str(i) in guilddata[guild.id]["numbers"]:
+            template[0] += f"<@{guilddata[guild.id]['numbers'][str(i)]}>"
         template[0] += "\n"
     for i in range(50, 100):
         template[1] += f"`{i}` - "
-        if guild.id in guilddata and i in guilddata[guild.id]["numbers"]:
-            template[1] += f"<@{guilddata[guild.id]['numbers'][i]}>"
+        if guild.id in guilddata and str(i) in guilddata[guild.id]["numbers"]:
+            template[1] += f"<@{guilddata[guild.id]['numbers'][str(i)]}>"
         template[1] += "\n"
 
     return template
 
 
 async def updateDrivers(guilddata, message):
+    writeConfig(message.guild.id, guilddata[message.guild.id])
+
+    # Record in records channel
     numchan = message.guild.get_channel(guilddata[message.guild.id]["config"]["numchanid"])
+
+    if numchan is None:
+        await message.channel.send("Unable to update records due to channel no longer existing. " +
+                                   "Use `##move new-channel-name` to set this channel for DriverNos use.")
+        return
+
     numbers = formatDrivers(guilddata, message.guild)
     msg0 = await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg0"])
     msg1 = await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg1"])
     await msg0.edit(content=numbers[0])
     await msg1.edit(content=numbers[1])
-
-    writeConfig(message.guild.id, guilddata[message.guild.id])
 
     return
