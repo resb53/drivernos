@@ -46,3 +46,7 @@ async def setNick(guilddata, member, message=None):
                                        "Guild owner must manually set nickname.")
 
     return
+
+
+def handleLeaver(guilddata, member):
+    return

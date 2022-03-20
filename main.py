@@ -25,6 +25,7 @@ async def on_ready():
     print(f"We have logged in as {client.user}")
 
 
+# Control events when messages are sent
 @client.event
 async def on_message(message):
     # Ignore own messages
@@ -60,6 +61,13 @@ async def on_message(message):
 async def on_member_update(before, after):
     if before.nick != after.nick:
         await memaction.setNick(gd, after)
+
+
+# Handle events when member leaves the guild.
+@client.event
+async def on_member_remove(member):
+    if member.id in gd[member.guild.id]["numbers"].values():
+        memaction.handleLeaver(gd, member)
 
 
 client.run(os.getenv("TOKEN"))
