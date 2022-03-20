@@ -46,6 +46,10 @@ async def on_message(message):
     elif message.content.startswith("##unassign"):
         await msgaction.unassign(gd, message)
 
+    # Move the numbers listing to a new channel
+    elif message.content.startswith("##move"):
+        await msgaction.move(gd, message)
+
     # Reset drivernos for the guild
     elif message.content.startswith("##reset"):
         await msgaction.reset(gd, message)

@@ -6,6 +6,20 @@ from collections import defaultdict
 from . import dnos, memaction
 
 
+async def _validateInit(guilddata, message, admin=False):
+    if admin:
+        if not message.author.guild_permissions.administrator:
+            await message.channel.send("This command can only be run by server admins.")
+            return False
+
+    if message.guild.id not in guilddata:
+        await message.channel.send("This guild has not been initialised. " +
+                                   "First run `##init <channel-name>`.")
+        return False
+
+    return True
+
+
 async def init(guilddata, message):
     if not message.author.guild_permissions.administrator:
         await message.channel.send("This command can only be run by server admins.")
@@ -64,8 +78,7 @@ def test(guilddata, message):
 
 
 async def assign(guilddata, message):
-    if not message.author.guild_permissions.administrator:
-        await message.channel.send("This command can only be run by server admins.")
+    if not await _validateInit(guilddata, message, admin=True):
         return
 
     m = re.match(r"^##assign\s+<@!?(\d+)>\s+(\d+)", message.content)
@@ -122,8 +135,7 @@ async def assign(guilddata, message):
 
 
 async def unassign(guilddata, message):
-    if not message.author.guild_permissions.administrator:
-        await message.channel.send("This command can only be run by server admins.")
+    if not await _validateInit(guilddata, message, admin=True):
         return
 
     m = re.match(r"^##unassign\s+<@!?(\d+)>", message.content)
@@ -154,15 +166,57 @@ async def unassign(guilddata, message):
     return
 
 
-async def reset(guilddata, message):
-    if not message.author.guild_permissions.administrator:
-        await message.channel.send("This command can only be run by server admins.")
+async def move(guilddata, message):
+    if not await _validateInit(guilddata, message, admin=True):
         return
 
-    # TODO: For production CHECK THIS IS REALLY WANTED!
+    numchanname = message.content[7:].strip(" ")
 
-    if message.guild.id not in guilddata:
-        await message.channel.send("Unable to reset DriverNos. It has not yet been initialised in this guild.")
+    if len(numchanname) == 0:
+        await message.channel.send("Provide a channel name to move number records to. e.g: `##init numbers`")
+        return
+
+    textchannels = defaultdict(list)
+
+    for tchans in message.guild.text_channels:
+        textchannels[tchans.name].append(tchans.id)
+
+    if numchanname not in textchannels:
+        await message.channel.send(f"Text channel `{numchanname}` does not exist.")
+        return
+    elif len(textchannels[numchanname]) > 1:
+        await message.channel.send(f"Multiple `{numchanname}` channels exist. Choose a unique channel name.")
+        return
+
+    newnumchan = message.guild.get_channel(textchannels[numchanname][0])
+    oldnumchan = message.guild.get_channel(guilddata[message.guild.id]["config"]["numchanid"])
+
+    # Delete old numbers posts
+    msgs = [
+        await oldnumchan.fetch_message(guilddata[message.guild.id]["config"]["msg0"]),
+        await oldnumchan.fetch_message(guilddata[message.guild.id]["config"]["msg1"])
+    ]
+
+    for msg in msgs:
+        await msg.delete()
+
+    # Update guild data
+    numbers = dnos.formatDrivers(guilddata, message.guild)
+    msg0 = await newnumchan.send(numbers[0])
+    msg1 = await newnumchan.send(numbers[1])
+    guilddata[message.guild.id]["config"]["msg0"] = msg0.id
+    guilddata[message.guild.id]["config"]["msg1"] = msg1.id
+    guilddata[message.guild.id]["config"]["numchanid"] = newnumchan.id
+
+    dnos.writeConfig(message.guild.id, guilddata[message.guild.id])
+
+    await message.channel.send(f"DriverNos records have been moved to <#{newnumchan.id}>.")
+
+    return
+
+
+async def reset(guilddata, message):
+    if not await _validateInit(guilddata, message, admin=True):
         return
 
     # Remove drivernos from server and cached data
