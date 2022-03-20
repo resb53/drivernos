@@ -223,17 +223,16 @@ async def reset(guilddata, message):
     numchan = message.guild.get_channel(guilddata[message.guild.id]["config"]["numchanid"])
 
     if numchan is None:
-        # TODO: Handle this better
-        print("Error: config out of sync")
-        return
+        await message.channel.send("Unable to remove DriverNos records due to channel no longer existing. " +
+                                   "These must be removed manually.")
+    else:
+        msgs = [
+            await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg0"]),
+            await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg1"])
+        ]
 
-    msgs = [
-        await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg0"]),
-        await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg1"])
-    ]
-
-    for msg in msgs:
-        await msg.delete()
+        for msg in msgs:
+            await msg.delete()
 
     dnos.removeConfig(message.guild.id)
     guilddata.pop(message.guild.id)
