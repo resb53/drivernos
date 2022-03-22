@@ -58,12 +58,13 @@ async def init(guilddata, message):
 
     # Initialise guild data
     guilddata[message.guild.id] = {}
-    guilddata[message.guild.id]["numbers"] = {}
     guilddata[message.guild.id]["config"] = {
         "msg0": msg0.id,
         "msg1": msg1.id,
         "numchanid": numchan.id
     }
+    guilddata[message.guild.id]["expires"] = {}
+    guilddata[message.guild.id]["numbers"] = {}
     dnos.writeConfig(message.guild.id, guilddata[message.guild.id])
 
     await message.channel.send("DriverNos has been initialised in.")

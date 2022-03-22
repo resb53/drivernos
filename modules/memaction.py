@@ -3,6 +3,8 @@ Bot Operations for Discord Message actions.
 '''
 import discord
 import re
+import time
+from . import dnos
 
 
 async def setNick(guilddata, member, message=None):
@@ -49,4 +51,13 @@ async def setNick(guilddata, member, message=None):
 
 
 def handleLeaver(guilddata, member):
+    # Add expiry to the leavers driver number
+    dno = "0"
+    for x in guilddata[member.guild.id]["numbers"].items():
+        if x[1] == member.id:
+            dno = x[0]
+
+    guilddata[member.guild.id]["expires"][dno] = int(time.time())
+    dnos.writeConfig(member.guild.id, guilddata[member.guild.id])
+
     return
