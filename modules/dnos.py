@@ -98,3 +98,7 @@ async def updateDrivers(guilddata, message):
     await msg1.edit(content=numbers[1])
 
     return
+
+
+def reapExpired(guilddata):
+    print("Reaping...")

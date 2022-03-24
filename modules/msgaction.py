@@ -61,7 +61,8 @@ async def init(guilddata, message):
     guilddata[message.guild.id]["config"] = {
         "msg0": msg0.id,
         "msg1": msg1.id,
-        "numchanid": numchan.id
+        "numchanid": numchan.id,
+        "expiration": 1209600  # 2 weeks
     }
     guilddata[message.guild.id]["expires"] = {}
     guilddata[message.guild.id]["numbers"] = {}

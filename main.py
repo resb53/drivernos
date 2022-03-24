@@ -1,5 +1,6 @@
 import os
 from modules import dnos, memaction, msgaction
+from discord.ext import tasks
 
 '''
 Discord DriverNos Bot.
@@ -19,10 +20,17 @@ client = dnos.startClient(configfile="data/guilddata.json")
 gd = dnos.readConfig()
 
 
+# Background task to check for releasing numbers every hour
+@tasks.loop(seconds=5)
+async def reap():
+    dnos.reapExpired(gd)
+
+
 # Discord Events
 @client.event
 async def on_ready():
     print(f"We have logged in as {client.user}")
+    reap.start()
 
 
 # Control events when messages are sent
