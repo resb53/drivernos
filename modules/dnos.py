@@ -30,9 +30,9 @@ def readConfig():
     return config
 
 
-def writeConfig(gid, data):
+def writeConfig(guilddata, gid):
     alldata = readConfig()
-    alldata[gid] = data
+    alldata[gid] = guilddata[gid]  # N.B. added by reference
 
     try:
         output_fh = open(_config["file"], 'w')
@@ -81,27 +81,26 @@ def formatDrivers(guilddata, guild):
     return template
 
 
-async def updateDrivers(guilddata, message):
-    writeConfig(message.guild.id, guilddata[message.guild.id])
+async def updateDrivers(guilddata, guildid):
+    writeConfig(guilddata, guildid)
 
     # Record in records channel
-    numchan = message.guild.get_channel(guilddata[message.guild.id]["config"]["numchanid"])
+    numchan = guildid.get_channel(guilddata[guildid]["config"]["numchanid"])
 
     if numchan is None:
-        await message.channel.send("Unable to update records due to channel no longer existing. " +
-                                   "Use `##move new-channel-name` to set this channel for DriverNos use.")
-        return
+        return ("Unable to update records due to channel no longer existing. "
+                "Use `##move new-channel-name` to set this channel for DriverNos use.")
 
-    numbers = formatDrivers(guilddata, message.guild)
-    msg0 = await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg0"])
-    msg1 = await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg1"])
+    numbers = formatDrivers(guilddata, guildid)
+    msg0 = await numchan.fetch_message(guilddata[guildid]["config"]["msg0"])
+    msg1 = await numchan.fetch_message(guilddata[guildid]["config"]["msg1"])
     await msg0.edit(content=numbers[0])
     await msg1.edit(content=numbers[1])
 
     return
 
 
-def reapExpired(guilddata):
+async def reapExpired(guilddata):
     print("Reaping...")
     for guildid in guilddata:
         if guilddata[guildid]["config"]["expiration"] != 0:
@@ -112,10 +111,14 @@ def reapExpired(guilddata):
                     # Prep allocation for removal
                     expires.append(driverno)
 
-            # Remove allocation
-            for driverno in expires:
-                guilddata[guildid]["numbers"].pop(driverno)
-                guilddata[guildid]["expires"].pop(driverno)
+            if len(expires) > 0:
+                # Remove allocation
+                for driverno in expires:
+                    guilddata[guildid]["numbers"].pop(driverno)
+                    guilddata[guildid]["expires"].pop(driverno)
+
+                # Update guild record
+                updateDrivers(guilddata, guildid)
 
         # Write reaped config
-        writeConfig(guildid, guilddata[guildid])
+        writeConfig(guilddata, guildid)

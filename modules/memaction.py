@@ -66,6 +66,6 @@ def handleLeaver(guilddata, member):
         # Set expiry on allocation
         guilddata[member.guild.id]["expires"][dno] = int(time.time()) + expiration
 
-    dnos.writeConfig(member.guild.id, guilddata[member.guild.id])
+    dnos.writeConfig(guilddata, member.guild.id)
 
     return

@@ -23,7 +23,7 @@ gd = dnos.readConfig()
 # Background task to check for releasing numbers every hour
 @tasks.loop(seconds=10)
 async def reap():
-    dnos.reapExpired(gd)
+    await dnos.reapExpired(gd)
 
 
 # Discord Events

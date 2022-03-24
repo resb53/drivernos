@@ -66,7 +66,7 @@ async def init(guilddata, message):
     }
     guilddata[message.guild.id]["expires"] = {}
     guilddata[message.guild.id]["numbers"] = {}
-    dnos.writeConfig(message.guild.id, guilddata[message.guild.id])
+    dnos.writeConfig(guilddata, message.guild.id)
 
     await message.channel.send("DriverNos has been initialised in.")
 
@@ -124,7 +124,9 @@ async def assign(guilddata, message):
         report = f"Driver number `{number}` assigned to <@{member.id}>, and number `{oldnum}` released."
 
     # Update number channel
-    await dnos.updateDrivers(guilddata, message)
+    err = await dnos.updateDrivers(guilddata, message.guild.id)
+    if err is not None:
+        await message.channel.send(err)
 
     # Assign the number to the members nickname
     await memaction.setNick(guilddata, member, message)
@@ -160,7 +162,9 @@ async def unassign(guilddata, message):
     guilddata[message.guild.id]["numbers"].pop(number)
 
     # Update number channel
-    await dnos.updateDrivers(guilddata, message)
+    err = await dnos.updateDrivers(guilddata, message.guild.id)
+    if err is not None:
+        await message.channel.send(err)
 
     # Unassign the number to the members nickname
     await memaction.setNick(guilddata, member, message)
@@ -218,7 +222,7 @@ async def move(guilddata, message):
     guilddata[message.guild.id]["config"]["msg1"] = msg1.id
     guilddata[message.guild.id]["config"]["numchanid"] = newnumchan.id
 
-    dnos.writeConfig(message.guild.id, guilddata[message.guild.id])
+    dnos.writeConfig(guilddata, message.guild.id)
 
     await message.channel.send(f"DriverNos records have been moved to <#{newnumchan.id}>.")
 
