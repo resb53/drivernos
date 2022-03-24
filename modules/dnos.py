@@ -4,6 +4,7 @@ Internal functions for DriverNos Bot Operation, and related features.
 import sys
 import json
 import discord
+import time
 from . import permissions
 
 # Module-wide globals
@@ -102,3 +103,19 @@ async def updateDrivers(guilddata, message):
 
 def reapExpired(guilddata):
     print("Reaping...")
+    for guildid in guilddata:
+        if guilddata[guildid]["config"]["expiration"] != 0:
+            expires = []
+
+            for driverno in guilddata[guildid]["expires"]:
+                if int(time.time()) > guilddata[guildid]["expires"][driverno]:
+                    # Prep allocation for removal
+                    expires.append(driverno)
+
+            # Remove allocation
+            for driverno in expires:
+                guilddata[guildid]["numbers"].pop(driverno)
+                guilddata[guildid]["expires"].pop(driverno)
+
+        # Write reaped config
+        writeConfig(guildid, guilddata[guildid])

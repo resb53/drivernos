@@ -62,7 +62,7 @@ async def init(guilddata, message):
         "msg0": msg0.id,
         "msg1": msg1.id,
         "numchanid": numchan.id,
-        "expiration": 1209600  # 2 weeks
+        "expiration": 20  # 1209600  # 2 weeks, use -1 for off, 0 for instant, else up to an hour minimum
     }
     guilddata[message.guild.id]["expires"] = {}
     guilddata[message.guild.id]["numbers"] = {}

@@ -57,7 +57,15 @@ def handleLeaver(guilddata, member):
         if x[1] == member.id:
             dno = x[0]
 
-    guilddata[member.guild.id]["expires"][dno] = int(time.time())
+    expiration = guilddata[member.guild.id]["config"]["expiration"]
+
+    if expiration == 0:
+        # Instantly remove allocation
+        guilddata[member.guild.id]["numbers"].pop(dno)
+    else:
+        # Set expiry on allocation
+        guilddata[member.guild.id]["expires"][dno] = int(time.time()) + expiration
+
     dnos.writeConfig(member.guild.id, guilddata[member.guild.id])
 
     return

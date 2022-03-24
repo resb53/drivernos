@@ -21,7 +21,7 @@ gd = dnos.readConfig()
 
 
 # Background task to check for releasing numbers every hour
-@tasks.loop(seconds=5)
+@tasks.loop(seconds=10)
 async def reap():
     dnos.reapExpired(gd)
 
@@ -71,11 +71,12 @@ async def on_member_update(before, after):
         await memaction.setNick(gd, after)
 
 
-# Handle events when member leaves the guild.
+# Handle events when member leaves the guild it feature enabled
 @client.event
 async def on_member_remove(member):
-    if member.id in gd[member.guild.id]["numbers"].values():
-        memaction.handleLeaver(gd, member)
+    if gd[member.guild.id]["config"]["expiration"] > -1:
+        if member.id in gd[member.guild.id]["numbers"].values():
+            memaction.handleLeaver(gd, member)
 
 
 client.run(os.getenv("TOKEN"))
