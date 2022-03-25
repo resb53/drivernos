@@ -79,4 +79,11 @@ async def on_member_remove(member):
             memaction.handleLeaver(gd, member)
 
 
+# Handle events when member leaves the guild it feature enabled
+@client.event
+async def on_member_join(member):
+    if member.id in gd[member.guild.id]["numbers"].values():
+        memaction.handleRejoiner(gd, member)
+
+
 client.run(os.getenv("TOKEN"))

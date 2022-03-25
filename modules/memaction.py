@@ -69,3 +69,17 @@ def handleLeaver(guilddata, member):
     dnos.writeConfig(guilddata, member.guild.id)
 
     return
+
+
+async def handleRejoiner(guilddata, member):
+    # Remove expiry
+    dno = "0"
+    for x in guilddata[member.guild.id]["numbers"].items():
+        if x[1] == member.id:
+            dno = x[0]
+
+    if dno in guilddata[member.guild.id]["expires"]:
+        guilddata[member.guild.id]["expires"].pop(dno)
+
+    # Update user nickname
+    await setNick(guilddata, member)

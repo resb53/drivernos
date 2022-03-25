@@ -62,7 +62,7 @@ async def init(guilddata, message):
         "msg0": msg0.id,
         "msg1": msg1.id,
         "numchanid": numchan.id,
-        "expiration": 20  # 1209600  # 2 weeks, use -1 for off, 0 for instant, else up to an hour minimum
+        "expiration": 1209600  # 2 weeks, use -1 for off, 0 for instant, else up to an hour minimum
     }
     guilddata[message.guild.id]["expires"] = {}
     guilddata[message.guild.id]["numbers"] = {}
@@ -129,7 +129,7 @@ async def assign(guilddata, message):
         await message.channel.send(err)
 
     # Assign the number to the members nickname
-    await memaction.setNick(guilddata, member, message)
+    await memaction.setNick(guilddata, member, message=message)
 
     # Report success
     await message.channel.send(report)
@@ -167,7 +167,7 @@ async def unassign(guilddata, message):
         await message.channel.send(err)
 
     # Unassign the number to the members nickname
-    await memaction.setNick(guilddata, member, message)
+    await memaction.setNick(guilddata, member, message=message)
 
     # Report success
     await message.channel.send(f"Member <@!{member.id}> unassigned from number `{number}`.")
