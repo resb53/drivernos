@@ -81,6 +81,4 @@ async def handleRejoiner(guilddata, member):
 
     if dno in guilddata[member.guild.id]["expires"]:
         guilddata[member.guild.id]["expires"].pop(dno)
-
-    # Update user nickname
-    await setNick(guilddata, member)
+        dnos.writeConfig(guilddata, member.guild.id)

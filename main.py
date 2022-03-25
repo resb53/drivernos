@@ -88,6 +88,7 @@ async def on_member_remove(member):
 async def on_member_join(member):
     if member.id in gd[member.guild.id]["numbers"].values():
         await memaction.handleRejoiner(gd, member)
+    await memaction.setNick(gd, member)
 
 
 client.run(os.getenv("TOKEN"))
