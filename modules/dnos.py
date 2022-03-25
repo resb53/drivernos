@@ -8,12 +8,17 @@ import time
 from . import permissions
 
 # Module-wide globals
-_config = {"file": None}
+_config = {
+    "file": None,
+    "client": None
+}
 
 
 def startClient(configfile="filename"):
     _config["file"] = configfile
-    return discord.Client(intents=permissions.setIntents())
+    _config["client"] = discord.Client(intents=permissions.setIntents())
+
+    return _config["client"]
 
 
 def readConfig():
@@ -60,22 +65,22 @@ def removeConfig(gid):
     return
 
 
-def formatDrivers(guilddata, guild):
+def formatDrivers(guilddata, guildid):
     template = ["", ""]
     for i in range(1, 10):
         template[0] += f"` {i}` - "
-        if guild.id in guilddata and str(i) in guilddata[guild.id]["numbers"]:
-            template[0] += f"<@{guilddata[guild.id]['numbers'][str(i)]}>"
+        if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
+            template[0] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
         template[0] += "\n"
     for i in range(10, 50):
         template[0] += f"`{i}` - "
-        if guild.id in guilddata and str(i) in guilddata[guild.id]["numbers"]:
-            template[0] += f"<@{guilddata[guild.id]['numbers'][str(i)]}>"
+        if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
+            template[0] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
         template[0] += "\n"
     for i in range(50, 100):
         template[1] += f"`{i}` - "
-        if guild.id in guilddata and str(i) in guilddata[guild.id]["numbers"]:
-            template[1] += f"<@{guilddata[guild.id]['numbers'][str(i)]}>"
+        if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
+            template[1] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
         template[1] += "\n"
 
     return template
@@ -85,7 +90,8 @@ async def updateDrivers(guilddata, guildid):
     writeConfig(guilddata, guildid)
 
     # Record in records channel
-    numchan = guildid.get_channel(guilddata[guildid]["config"]["numchanid"])
+    guild = _config["client"].get_guild(guildid)
+    numchan = guild.get_channel(guilddata[guildid]["config"]["numchanid"])
 
     if numchan is None:
         return ("Unable to update records due to channel no longer existing. "
@@ -118,7 +124,7 @@ async def reapExpired(guilddata):
                     guilddata[guildid]["expires"].pop(driverno)
 
                 # Update guild record
-                updateDrivers(guilddata, guildid)
+                await updateDrivers(guilddata, guildid)
 
         # Write reaped config
         writeConfig(guilddata, guildid)
