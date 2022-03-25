@@ -21,7 +21,7 @@ gd = dnos.readConfig()
 
 
 # Background task to check for releasing numbers every hour
-@tasks.loop(seconds=10)
+@tasks.loop(hours=1)
 async def reap():
     await dnos.reapExpired(gd)
 
@@ -60,6 +60,10 @@ async def on_message(message):
         await msgaction.move(gd, message)
 
     # Reset drivernos for the guild
+    elif message.content.startswith("##expiry"):
+        await msgaction.setExpiry(gd, message)
+
+    # Reset drivernos for the guild
     elif message.content.startswith("##reset"):
         await msgaction.reset(gd, message)
 
@@ -76,14 +80,14 @@ async def on_member_update(before, after):
 async def on_member_remove(member):
     if gd[member.guild.id]["config"]["expiration"] > -1:
         if member.id in gd[member.guild.id]["numbers"].values():
-            memaction.handleLeaver(gd, member)
+            await memaction.handleLeaver(gd, member)
 
 
 # Handle events when member leaves the guild it feature enabled
 @client.event
 async def on_member_join(member):
     if member.id in gd[member.guild.id]["numbers"].values():
-        memaction.handleRejoiner(gd, member)
+        await memaction.handleRejoiner(gd, member)
 
 
 client.run(os.getenv("TOKEN"))

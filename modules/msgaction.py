@@ -229,6 +229,27 @@ async def move(guilddata, message):
     return
 
 
+async def setExpiry(guilddata, message):
+    if not await _validateInit(guilddata, message, admin=True):
+        return
+
+    m = re.match(r"^##expiry\s+(\-?\d+)", message.content)
+
+    # Report current expiry if no time given.
+    if m is None:
+        await message.channel.send(f"Current expiry is {guilddata[message.guild.id]['config']['expiration']}.\n"
+                                   "To change, provide a new value e.g: `##expiry 1209600`\n"
+                                   "Use `0` for instant release, and `-1` for never release.")
+        return
+
+    guilddata[message.guild.id]["config"]["expiration"] = int(m.group(1))
+    dnos.writeConfig(guilddata, message.guild.id)
+
+    await message.channel.send(f"Expiry set to {m.group(1)}.")
+
+    return
+
+
 async def reset(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return

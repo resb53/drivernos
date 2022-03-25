@@ -50,7 +50,7 @@ async def setNick(guilddata, member, message=None):
     return
 
 
-def handleLeaver(guilddata, member):
+async def handleLeaver(guilddata, member):
     # Add expiry to the leavers driver number
     dno = "0"
     for x in guilddata[member.guild.id]["numbers"].items():
@@ -62,6 +62,7 @@ def handleLeaver(guilddata, member):
     if expiration == 0:
         # Instantly remove allocation
         guilddata[member.guild.id]["numbers"].pop(dno)
+        await dnos.updateDrivers(guilddata, member.guild.id)
     else:
         # Set expiry on allocation
         guilddata[member.guild.id]["expires"][dno] = int(time.time()) + expiration

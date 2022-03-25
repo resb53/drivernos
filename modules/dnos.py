@@ -107,7 +107,6 @@ async def updateDrivers(guilddata, guildid):
 
 
 async def reapExpired(guilddata):
-    print("Reaping...")
     for guildid in guilddata:
         if guilddata[guildid]["config"]["expiration"] > 0:
             expires = []
