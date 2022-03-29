@@ -250,6 +250,45 @@ async def setExpiry(guilddata, message):
     return
 
 
+async def grid(guilddata, message):
+    if not await _validateInit(guilddata, message, admin=True):
+        return
+
+    gridchanname = message.content[6:].strip(" ")
+
+    if len(gridchanname) == 0:
+        await message.channel.send("Provide a channel name to setup grid. e.g: `##grid grid`")
+        return
+
+    textchannels = defaultdict(list)
+
+    for tchans in message.guild.text_channels:
+        textchannels[tchans.name].append(tchans.id)
+
+    if gridchanname not in textchannels:
+        await message.channel.send(f"Text channel `{gridchanname}` does not exist.")
+        return
+    elif len(textchannels[gridchanname]) > 1:
+        await message.channel.send(f"Multiple `{gridchanname}` channels exist. Choose a unique channel name.")
+        return
+
+    gridchan = message.guild.get_channel(textchannels[gridchanname][0])
+
+    # Print grid to grid channel
+    # numbers = dnos.formatDrivers(guilddata, message.guild)
+    gridmsg = await gridchan.send("Grid Placeholder")
+
+    # Initialise guild data
+    guilddata[message.guild.id]["config"]["gridchanid"] = gridchan.id
+    guilddata[message.guild.id]["config"]["gridmsg"] = gridmsg.id
+
+    dnos.writeConfig(guilddata, message.guild.id)
+
+    await message.channel.send(f"Grid has been initialised in <#{gridchan.id}>.")
+
+    return
+
+
 async def reset(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return

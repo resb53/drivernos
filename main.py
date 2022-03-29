@@ -63,6 +63,10 @@ async def on_message(message):
     elif message.content.startswith("##expiry"):
         await msgaction.setExpiry(gd, message)
 
+    # Initialise bot in guild
+    elif message.content.startswith("##grid"):
+        await msgaction.grid(gd, message)
+
     # Reset drivernos for the guild
     elif message.content.startswith("##reset"):
         await msgaction.reset(gd, message)
