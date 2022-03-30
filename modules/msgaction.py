@@ -321,8 +321,6 @@ async def teamAdd(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    print(message.content)
-
     m = re.match(r"^##teamadd\s+([^<]+)\s+<@!?(\d+)>\s+<#(\d+)>", message.content)
 
     # Report usage if no match found.
@@ -352,16 +350,25 @@ async def teamAdd(guilddata, message):
     for s, driver in enumerate(guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname]):
         if driver is None:
             seat = s
+        elif driver == member.id:
+            await message.channel.send(f"<@{member.id}> already has a seat in {teamname}.")
+            return
 
     if seat is None:
         await message.channel.send(f"No available seats in {teamname}. Use `##teamdel` to release a seat.")
         return
 
+    # If seat available, and member is already in a seat, remove them first
+    for oldteam in guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"]:
+        if member.id in guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][oldteam]:
+            oldseat = guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][oldteam].index(member.id)
+            guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][oldteam][oldseat] = None
+
     # Assign seat
     guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat] = member.id
     dnos.writeConfig(guilddata, message.guild.id)
 
-    # Update to Embed
+    # Update Embed
     gridmsg = await gridchan.fetch_message(guilddata[message.guild.id]["grids"][str(gridchan.id)]["msg"])
 
     await gridmsg.edit(
@@ -370,6 +377,58 @@ async def teamAdd(guilddata, message):
     )
 
     await message.channel.send(f"<@{member.id}> has been assigned seat {seat + 1} "
+                               f"in `{teamname}` of grid <#{gridchan.id}>.")
+
+    return
+
+
+async def teamDel(guilddata, message):
+    if not await _validateInit(guilddata, message, admin=True):
+        return
+
+    m = re.match(r"^##teamdel\s+([^<]+)\s+([12])\s+<#(\d+)>", message.content)
+
+    # Report usage if no match found.
+    if m is None:
+        await message.channel.send("Usage: `##teamdel teamname seatnum(1,2) #gridchannel`")
+        return
+
+    teamname = m.group(1)
+    seat = int(m.group(2)) - 1
+    gridchan = message.guild.get_channel(int(m.group(3)))
+
+    # Report if grid channel not initialised
+    if str(gridchan.id) not in guilddata[message.guild.id]["grids"]:
+        await message.channel.send(f"<#{gridchan.id}> has not been setup with a grid. Use `##grid` to initialise.")
+        return
+
+    # Report team list if no match found.
+    if teamname not in guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"]:
+        teams = guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"].keys()
+        teamlist = "`" + "`, `".join(sorted(teams)) + "`"
+        await message.channel.send(f"Team `{teamname}` not found. Use one of:\n{teamlist}")
+        return
+
+    # If seat assigned, remove the driver, else report no change.
+    if guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat] is None:
+        await message.channel.send(f"Seat {seat + 1} in `{teamname}` is already empty.")
+        return
+
+    member = await message.guild.fetch_member(
+        guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat]
+    )
+    guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat] = None
+    dnos.writeConfig(guilddata, message.guild.id)
+
+    # Update Embed
+    gridmsg = await gridchan.fetch_message(guilddata[message.guild.id]["grids"][str(gridchan.id)]["msg"])
+
+    await gridmsg.edit(
+        content=None,
+        embed=dnos.gridEmbed(guilddata, message.guild.id, gridchan)
+    )
+
+    await message.channel.send(f"<@{member.id}> has been removed from seat {seat + 1} "
                                f"in `{teamname}` of grid <#{gridchan.id}>.")
 
     return

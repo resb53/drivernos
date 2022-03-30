@@ -74,6 +74,10 @@ async def on_message(message):
     elif message.content.startswith("##teamadd"):
         await msgaction.teamAdd(gd, message)
 
+    # Remove driver from team
+    elif message.content.startswith("##teamdel"):
+        await msgaction.teamDel(gd, message)
+
     # Reset drivernos for the guild
     elif message.content.startswith("##reset"):
         await msgaction.reset(gd, message)
