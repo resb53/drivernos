@@ -72,22 +72,35 @@ def removeConfig(gid):
 
 
 def formatDrivers(guilddata, guildid):
-    template = ["", ""]
+    template = ["", "", ""]
     for i in range(1, 10):
         template[0] += f"` {i}` - "
         if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
             template[0] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
+        else:
+            template[0] += "_<Vacant>_"
         template[0] += "\n"
-    for i in range(10, 50):
+    for i in range(10, 34):
         template[0] += f"`{i}` - "
         if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
             template[0] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
+        else:
+            template[0] += "_<Vacant>_"
         template[0] += "\n"
-    for i in range(50, 100):
+    for i in range(34, 67):
         template[1] += f"`{i}` - "
         if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
             template[1] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
+        else:
+            template[1] += "_<Vacant>_"
         template[1] += "\n"
+    for i in range(67, 100):
+        template[2] += f"`{i}` - "
+        if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
+            template[2] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
+        else:
+            template[2] += "_<Vacant>_"
+        template[2] += "\n"
 
     return template
 
@@ -101,13 +114,33 @@ async def updateDrivers(guilddata, guildid):
 
     if numchan is None:
         return ("Unable to update records due to channel no longer existing. "
-                "Use `##move new-channel-name` to set this channel for DriverNos use.")
+                "Use `## move new-channel-name` to set this channel for DriverNos use.")
+
+    embed = discord.Embed(
+        title="Driver Numbers",
+        color=discord.Color.gold()
+    )
 
     numbers = formatDrivers(guilddata, guildid)
-    msg0 = await numchan.fetch_message(guilddata[guildid]["config"]["msg0"])
-    msg1 = await numchan.fetch_message(guilddata[guildid]["config"]["msg1"])
-    await msg0.edit(content=numbers[0])
-    await msg1.edit(content=numbers[1])
+
+    embed.add_field(
+        name="\u200b",
+        value=numbers[0],
+        inline=True
+    )
+    embed.add_field(
+        name="\u200b",
+        value=numbers[1],
+        inline=True
+    )
+    embed.add_field(
+        name="\u200b",
+        value=numbers[2],
+        inline=True
+    )
+
+    msg = await numchan.fetch_message(guilddata[guildid]["config"]["msg"])
+    await msg.edit(content="", embed=embed)
 
     return
 
@@ -141,7 +174,7 @@ async def gridEmbed(guilddata, guildid, channel):
         perrow += 1
         # Empty field for 2 per line
         if perrow == 2:
-            embed.add_field(name='\u200b', value='\u200b')
+            embed.add_field(name="\u200b", value="\u200b")
             perrow = 0
 
     return embed

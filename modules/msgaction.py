@@ -53,22 +53,20 @@ async def init(guilddata, message):
     numchan = message.guild.get_channel(int(m.group(1)))
 
     # Print driver numbers to number channel
-    numbers = dnos.formatDrivers(guilddata, message.guild)
-    msg0 = await numchan.send(numbers[0])
-    msg1 = await numchan.send(numbers[1])
+    msg = await numchan.send("Number Channel Placeholder")
 
     # Initialise guild data
     guilddata[message.guild.id] = {}
     guilddata[message.guild.id]["config"] = {
-        "msg0": msg0.id,
-        "msg1": msg1.id,
+        "msg": msg.id,
         "numchanid": numchan.id,
         "expiration": 1209600  # 2 weeks, use -1 for off, 0 for instant, else up to an hour minimum
     }
     guilddata[message.guild.id]["expires"] = {}
     guilddata[message.guild.id]["grids"] = {}
     guilddata[message.guild.id]["numbers"] = {}
-    dnos.writeConfig(guilddata, message.guild.id)
+
+    await dnos.updateDrivers(guilddata, message.guild.id)
 
     await message.channel.send(f"DriverNos has been initialised in <#{numchan.id}>.")
 
@@ -323,6 +321,8 @@ async def teamAdd(guilddata, message):
         if member.id in guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][oldteam]:
             oldseat = guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][oldteam].index(member.id)
             guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][oldteam][oldseat] = None
+            await message.channel.send(f"<@{member.id}> has moved from seat {oldseat + 1} "
+                                       f"in {await dnos.getEmoji(oldteam)} **{oldteam}** of grid <#{gridchan.id}>.")
 
     # Assign seat
     guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat] = member.id
