@@ -8,18 +8,16 @@ from . import dnos, memaction
 
 # Template grid for reuse
 _gridtemplate = {
-    "grid": {
-        "Alfa Romeo": [None, None],
-        "Alpha Tauri": [None, None],
-        "Alpine": [None, None],
-        "Aston Martin": [None, None],
-        "Ferrari": [None, None],
-        "Haas": [None, None],
-        "McLaren": [None, None],
-        "Mercedes": [None, None],
-        "Red Bull": [None, None],
-        "Williams": [None, None]
-    }
+    "Alfa Romeo": [None, None],
+    "Alpha Tauri": [None, None],
+    "Alpine": [None, None],
+    "Aston Martin": [None, None],
+    "Ferrari": [None, None],
+    "Haas": [None, None],
+    "McLaren": [None, None],
+    "Mercedes": [None, None],
+    "Red Bull": [None, None],
+    "Williams": [None, None]
 }
 
 
@@ -292,8 +290,7 @@ async def grid(guilddata, message):
     gridchan = message.guild.get_channel(textchannels[gridchanname][0])
 
     # Print grid to grid channel
-    # numbers = dnos.formatDrivers(guilddata, message.guild)
-    gridmsg = await gridchan.send("Grid Placeholder")
+    gridmsg = await gridchan.send("Grid Channel Placeholder")
 
     # Initialise guild data
     guilddata[message.guild.id]["grids"][str(gridchan.id)] = {
@@ -302,6 +299,12 @@ async def grid(guilddata, message):
     }
 
     dnos.writeConfig(guilddata, message.guild.id)
+
+    # Update to Embed
+    await gridmsg.edit(
+        content=None,
+        embed=dnos.gridEmbed(guilddata, message.guild.id, gridchan)
+    )
 
     await message.channel.send(f"Grid has been initialised in <#{gridchan.id}>.")
 

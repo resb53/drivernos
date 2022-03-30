@@ -112,6 +112,29 @@ async def updateDrivers(guilddata, guildid):
     return
 
 
+def gridEmbed(guilddata, guildid, channel):
+    embed = discord.Embed(
+        title=channel.name,
+        color=discord.Color.gold()
+    )
+
+    perrow = 0
+
+    for team in guilddata[guildid]["grids"][str(channel.id)]["grid"]:
+        embed.add_field(
+            name=team,
+            value="Driver1\nDriver2",
+            inline=True
+        )
+        perrow += 1
+        # Empty field for 2 per line
+        if perrow == 2:
+            embed.add_field(name='\u200b', value='\u200b')
+            perrow = 0
+
+    return embed
+
+
 async def reapExpired(guilddata):
     for guildid in guilddata:
         if guilddata[guildid]["config"]["expiration"] > 0:
