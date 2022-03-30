@@ -6,6 +6,22 @@ import re
 from collections import defaultdict
 from . import dnos, memaction
 
+# Template grid for reuse
+_gridtemplate = {
+    "grid": {
+        "Alfa Romeo": [None, None],
+        "Alpha Tauri": [None, None],
+        "Alpine": [None, None],
+        "Aston Martin": [None, None],
+        "Ferrari": [None, None],
+        "Haas": [None, None],
+        "McLaren": [None, None],
+        "Mercedes": [None, None],
+        "Red Bull": [None, None],
+        "Williams": [None, None]
+    }
+}
+
 
 async def _validateInit(guilddata, message, admin=False):
     if admin:
@@ -65,6 +81,7 @@ async def init(guilddata, message):
         "expiration": 1209600  # 2 weeks, use -1 for off, 0 for instant, else up to an hour minimum
     }
     guilddata[message.guild.id]["expires"] = {}
+    guilddata[message.guild.id]["grids"] = {}
     guilddata[message.guild.id]["numbers"] = {}
     dnos.writeConfig(guilddata, message.guild.id)
 
@@ -279,8 +296,10 @@ async def grid(guilddata, message):
     gridmsg = await gridchan.send("Grid Placeholder")
 
     # Initialise guild data
-    guilddata[message.guild.id]["config"]["gridchanid"] = gridchan.id
-    guilddata[message.guild.id]["config"]["gridmsg"] = gridmsg.id
+    guilddata[message.guild.id]["grids"][str(gridchan.id)] = {
+        "grid": _gridtemplate.copy(),
+        "msg": gridmsg.id
+    }
 
     dnos.writeConfig(guilddata, message.guild.id)
 
