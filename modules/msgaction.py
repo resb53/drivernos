@@ -95,6 +95,12 @@ def test(guilddata, message):
     return
 
 
+async def emojis():
+    print(await dnos.emojis())
+
+    return
+
+
 async def assign(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
@@ -307,6 +313,64 @@ async def grid(guilddata, message):
     )
 
     await message.channel.send(f"Grid has been initialised in <#{gridchan.id}>.")
+
+    return
+
+
+async def teamAdd(guilddata, message):
+    if not await _validateInit(guilddata, message, admin=True):
+        return
+
+    print(message.content)
+
+    m = re.match(r"^##teamadd\s+([^<]+)\s+<@!?(\d+)>\s+<#(\d+)>", message.content)
+
+    # Report usage if no match found.
+    if m is None:
+        await message.channel.send("Usage: `##teamadd teamname @username #gridchannel`")
+        return
+
+    teamname = m.group(1)
+    member = await message.guild.fetch_member(int(m.group(2)))
+    gridchan = message.guild.get_channel(int(m.group(3)))
+
+    # Report if grid channel not initialised
+    if str(gridchan.id) not in guilddata[message.guild.id]["grids"]:
+        await message.channel.send(f"<#{gridchan.id}> has not been setup with a grid. Use `##grid` to initialise.")
+        return
+
+    # Report team list if no match found.
+    if teamname not in guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"]:
+        teams = guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"].keys()
+        teamlist = "`" + "`, `".join(sorted(teams)) + "`"
+        await message.channel.send(f"Team `{teamname}` not found. Use one of:\n{teamlist}")
+        return
+
+    # Find available seat
+    seat = None
+
+    for s, driver in enumerate(guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname]):
+        if driver is None:
+            seat = s
+
+    if seat is None:
+        await message.channel.send(f"No available seats in {teamname}. Use `##teamdel` to release a seat.")
+        return
+
+    # Assign seat
+    guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat] = member.id
+    dnos.writeConfig(guilddata, message.guild.id)
+
+    # Update to Embed
+    gridmsg = await gridchan.fetch_message(guilddata[message.guild.id]["grids"][str(gridchan.id)]["msg"])
+
+    await gridmsg.edit(
+        content=None,
+        embed=dnos.gridEmbed(guilddata, message.guild.id, gridchan)
+    )
+
+    await message.channel.send(f"<@{member.id}> has been assigned seat {seat + 1} "
+                               f"in `{teamname}` of grid <#{gridchan.id}>.")
 
     return
 

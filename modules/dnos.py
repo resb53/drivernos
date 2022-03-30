@@ -121,9 +121,18 @@ def gridEmbed(guilddata, guildid, channel):
     perrow = 0
 
     for team in guilddata[guildid]["grids"][str(channel.id)]["grid"]:
+        d1 = "_<Vacant>_"
+        d2 = "_<Vacant>_"
+
+        if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0] is not None:
+            d1 = "<@" + str(guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0]) + ">"
+
+        if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1] is not None:
+            d2 = "<@" + str(guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1]) + ">"
+
         embed.add_field(
             name=team,
-            value="Driver1\nDriver2",
+            value=f"{d1}\n{d2}",
             inline=True
         )
         perrow += 1
@@ -133,6 +142,12 @@ def gridEmbed(guilddata, guildid, channel):
             perrow = 0
 
     return embed
+
+
+async def emojis():
+    guild = _config["client"].get_guild(948129536808189962)
+
+    return await guild.fetch_emojis()
 
 
 async def reapExpired(guilddata):

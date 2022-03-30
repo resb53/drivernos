@@ -47,6 +47,9 @@ async def on_message(message):
     elif message.content.startswith("##test"):
         msgaction.test(gd, message)
 
+    elif message.content.startswith("##emojis"):
+        await msgaction.emojis()
+
     # Assign a user a number
     elif message.content.startswith("##assign"):
         await msgaction.assign(gd, message)
@@ -63,9 +66,13 @@ async def on_message(message):
     elif message.content.startswith("##expiry"):
         await msgaction.setExpiry(gd, message)
 
-    # Initialise bot in guild
+    # Initialise grid in guild
     elif message.content.startswith("##grid"):
         await msgaction.grid(gd, message)
+
+    # Add driver to team
+    elif message.content.startswith("##teamadd"):
+        await msgaction.teamAdd(gd, message)
 
     # Reset drivernos for the guild
     elif message.content.startswith("##reset"):
