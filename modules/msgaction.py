@@ -3,7 +3,6 @@ Bot Operations for Discord Message actions.
 '''
 import discord
 import re
-from collections import defaultdict
 from . import dnos, memaction
 
 # Template grid for reuse
@@ -29,7 +28,7 @@ async def _validateInit(guilddata, message, admin=False):
 
     if message.guild.id not in guilddata:
         await message.channel.send("This guild has not been initialised. " +
-                                   "First run `##init <channel-name>`.")
+                                   "First run `## init #channel`.")
         return False
 
     return True
@@ -42,28 +41,16 @@ async def init(guilddata, message):
 
     if message.guild.id in guilddata:
         await message.channel.send("This guild has already been initialised. " +
-                                   "To reset, use `##reset` and then run `##init` again.")
+                                   "To reset, use `## reset` and then run `## init` again.")
         return
 
-    numchanname = message.content[7:].strip(" ")
+    m = re.match(r"^## init\s+<#(\d+)>", message.content)
 
-    if len(numchanname) == 0:
-        await message.channel.send("Provide a channel name to initialise. e.g: `##init numbers`")
+    if m is None:
+        await message.channel.send("Provide a channel name to initialise. e.g: `## init #channel`")
         return
 
-    textchannels = defaultdict(list)
-
-    for tchans in message.guild.text_channels:
-        textchannels[tchans.name].append(tchans.id)
-
-    if numchanname not in textchannels:
-        await message.channel.send(f"Text channel `{numchanname}` does not exist.")
-        return
-    elif len(textchannels[numchanname]) > 1:
-        await message.channel.send(f"Multiple `{numchanname}` channels exist. Choose a unique channel name.")
-        return
-
-    numchan = message.guild.get_channel(textchannels[numchanname][0])
+    numchan = message.guild.get_channel(int(m.group(1)))
 
     # Print driver numbers to number channel
     numbers = dnos.formatDrivers(guilddata, message.guild)
@@ -88,21 +75,14 @@ async def init(guilddata, message):
     return
 
 
-def test(guilddata, message):
-    teststring = message.content[7:].strip(" ")
-    print(teststring)
-
-    return
-
-
 async def assign(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    m = re.match(r"^##assign\s+<@!?(\d+)>\s+(\d+)", message.content)
+    m = re.match(r"^## assign\s+<@!?(\d+)>\s+(\d+)", message.content)
 
     if m is None:
-        await message.channel.send("Provide a tagged user and driver number. e.g: `##assign @DriverNos 1`")
+        await message.channel.send("Provide a tagged user and driver number. e.g: `## assign @DriverNos 1`")
         return
 
     member = await message.guild.fetch_member(int(m.group(1)))
@@ -156,17 +136,17 @@ async def unassign(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    m = re.match(r"^##unassign\s+<@!?(\d+)>", message.content)
+    m = re.match(r"^## unassign\s+<@!?(\d+)>", message.content)
 
     if m is None:
-        await message.channel.send("Provide a tagged user. e.g: `##unassign @DriverNos`")
+        await message.channel.send("Provide a tagged user. e.g: `## unassign @DriverNos`")
         return
 
     member = await message.guild.fetch_member(int(m.group(1)))
 
     # Check if member has a number
     if member.id not in guilddata[message.guild.id]["numbers"].values():
-        await message.channel.send(f"Member `<@!{member.id}` is not assigned to a Driver Number.")
+        await message.channel.send(f"Member <@!{member.id} is not assigned to a Driver Number.")
         return
 
     # Unassign member from number
@@ -194,25 +174,13 @@ async def move(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    numchanname = message.content[7:].strip(" ")
+    m = re.match(r"^## move\s+<#(\d+)>", message.content)
 
-    if len(numchanname) == 0:
-        await message.channel.send("Provide a channel name to move number records to. e.g: `##init numbers`")
+    if m is None:
+        await message.channel.send("Provide a channel name to move records to. e.g: `## move #newchannel`")
         return
 
-    textchannels = defaultdict(list)
-
-    for tchans in message.guild.text_channels:
-        textchannels[tchans.name].append(tchans.id)
-
-    if numchanname not in textchannels:
-        await message.channel.send(f"Text channel `{numchanname}` does not exist.")
-        return
-    elif len(textchannels[numchanname]) > 1:
-        await message.channel.send(f"Multiple `{numchanname}` channels exist. Choose a unique channel name.")
-        return
-
-    newnumchan = message.guild.get_channel(textchannels[numchanname][0])
+    newnumchan = message.guild.get_channel(int(m.group(1)))
     oldnumchan = message.guild.get_channel(guilddata[message.guild.id]["config"]["numchanid"])
 
     # Delete old numbers posts
@@ -248,12 +216,12 @@ async def setExpiry(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    m = re.match(r"^##expiry\s+(\-?\d+)", message.content)
+    m = re.match(r"^## expiry\s+(\-?\d+)", message.content)
 
     # Report current expiry if no time given.
     if m is None:
         await message.channel.send(f"Current expiry is {guilddata[message.guild.id]['config']['expiration']}.\n"
-                                   "To change, provide a new value e.g: `##expiry 1209600`\n"
+                                   "To change, provide a new value e.g: `## expiry 1209600`\n"
                                    "Use `0` for instant release, and `-1` for never release.")
         return
 
@@ -272,22 +240,16 @@ async def grid(guilddata, message):
     gridchanname = message.content[6:].strip(" ")
 
     if len(gridchanname) == 0:
-        await message.channel.send("Provide a channel name to setup grid. e.g: `##grid grid`")
+        await message.channel.send("Provide a channel name to setup grid. e.g: `## grid #gridchannel`")
         return
 
-    textchannels = defaultdict(list)
+    m = re.match(r"^## grid\s+<#(\d+)>", message.content)
 
-    for tchans in message.guild.text_channels:
-        textchannels[tchans.name].append(tchans.id)
-
-    if gridchanname not in textchannels:
-        await message.channel.send(f"Text channel `{gridchanname}` does not exist.")
-        return
-    elif len(textchannels[gridchanname]) > 1:
-        await message.channel.send(f"Multiple `{gridchanname}` channels exist. Choose a unique channel name.")
+    if m is None:
+        await message.channel.send("Provide a channel name to initialise. e.g: `## init #channel`")
         return
 
-    gridchan = message.guild.get_channel(textchannels[gridchanname][0])
+    gridchan = message.guild.get_channel(int(m.group(1)))
 
     # Print grid to grid channel
     gridmsg = await gridchan.send("Grid Channel Placeholder")
@@ -315,11 +277,11 @@ async def teamAdd(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    m = re.match(r"^##teamadd\s+([^<]+)\s+<@!?(\d+)>\s+<#(\d+)>", message.content)
+    m = re.match(r"^## teamadd\s+([^<]+)\s+<@!?(\d+)>\s+<#(\d+)>", message.content)
 
     # Report usage if no match found.
     if m is None:
-        await message.channel.send("Usage: `##teamadd teamname @username #gridchannel`")
+        await message.channel.send("Usage: `## teamadd teamname @username #gridchannel`")
         return
 
     teamname = m.group(1)
@@ -328,7 +290,7 @@ async def teamAdd(guilddata, message):
 
     # Report if grid channel not initialised
     if str(gridchan.id) not in guilddata[message.guild.id]["grids"]:
-        await message.channel.send(f"<#{gridchan.id}> has not been setup with a grid. Use `##grid` to initialise.")
+        await message.channel.send(f"<#{gridchan.id}> has not been setup with a grid. Use `## grid` to initialise.")
         return
 
     # Report team list if no match found.
@@ -353,7 +315,7 @@ async def teamAdd(guilddata, message):
 
     if seat is None:
         await message.channel.send(f"No available seats in {await dnos.getEmoji(teamname)} **{teamname}**.\n"
-                                   f"Use `##teamdel` to release a seat.")
+                                   f"Use `## teamdel` to release a seat.")
         return
 
     # If seat available, and member is already in a seat, remove them first
@@ -384,11 +346,11 @@ async def teamDel(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    m = re.match(r"^##teamdel\s+([^<]+)\s+([12])\s+<#(\d+)>", message.content)
+    m = re.match(r"^## teamdel\s+([^<]+)\s+([12])\s+<#(\d+)>", message.content)
 
     # Report usage if no match found.
     if m is None:
-        await message.channel.send("Usage: `##teamdel teamname seatnum(1,2) #gridchannel`")
+        await message.channel.send("Usage: `## teamdel teamname seatnum(1,2) #gridchannel`")
         return
 
     teamname = m.group(1)
@@ -397,7 +359,7 @@ async def teamDel(guilddata, message):
 
     # Report if grid channel not initialised
     if str(gridchan.id) not in guilddata[message.guild.id]["grids"]:
-        await message.channel.send(f"<#{gridchan.id}> has not been setup with a grid. Use `##grid` to initialise.")
+        await message.channel.send(f"<#{gridchan.id}> has not been setup with a grid. Use `## grid` to initialise.")
         return
 
     # Report team list if no match found.
@@ -437,10 +399,10 @@ async def reset(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    if message.content != "##reset Everything":
+    if message.content != "## reset Everything":
         await message.channel.send("**This will delete ALL drivernos data and is irreversible.**\n"
                                    "If you are sure you would like to proceed, "
-                                   "use this exact command: `##reset Everything`")
+                                   "use this exact command: `## reset Everything`")
         return
 
     # Remove drivernos from server and cached data
@@ -459,12 +421,13 @@ async def reset(guilddata, message):
         except discord.errors.NotFound:
             await message.channel.send("Unable to remove DriverNos records due to messages no longer existing.")
 
-    for gridchan in message.guild.get_channel(guilddata[message.guild.id]["grids"]):
+    for gridchanid in guilddata[message.guild.id]["grids"]:
+        gridchan = message.guild.get_channel(int(gridchanid))
         if gridchan is None:
             await message.channel.send("Unable to remove DriverNos grid due to channel no longer existing.")
         else:
             try:
-                msg = await gridchan.fetch_message(guilddata[message.guild.id]["grids"][str(gridchan.id)]["msg"]),
+                msg = await gridchan.fetch_message(guilddata[message.guild.id]["grids"][str(gridchan.id)]["msg"])
                 await msg.delete()
             except discord.errors.NotFound:
                 await message.channel.send("Unable to remove DriverNos grid due to messages no longer existing.")

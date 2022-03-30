@@ -41,42 +41,39 @@ async def on_message(message):
         return
 
     # Initialise bot in guild
-    elif message.content.startswith("##init"):
+    elif message.content.startswith("## init"):
         await msgaction.init(gd, message)
 
-    elif message.content.startswith("##test"):
-        msgaction.test(gd, message)
-
     # Assign a user a number
-    elif message.content.startswith("##assign"):
+    elif message.content.startswith("## assign"):
         await msgaction.assign(gd, message)
 
     # Unassign a user a number
-    elif message.content.startswith("##unassign"):
+    elif message.content.startswith("## unassign"):
         await msgaction.unassign(gd, message)
 
     # Move the numbers listing to a new channel
-    elif message.content.startswith("##move"):
+    elif message.content.startswith("## move"):
         await msgaction.move(gd, message)
 
     # Reset drivernos for the guild
-    elif message.content.startswith("##expiry"):
+    elif message.content.startswith("## expiry"):
         await msgaction.setExpiry(gd, message)
 
     # Initialise grid in guild
-    elif message.content.startswith("##grid"):
+    elif message.content.startswith("## grid"):
         await msgaction.grid(gd, message)
 
     # Add driver to team
-    elif message.content.startswith("##teamadd"):
+    elif message.content.startswith("## teamadd"):
         await msgaction.teamAdd(gd, message)
 
     # Remove driver from team
-    elif message.content.startswith("##teamdel"):
+    elif message.content.startswith("## teamdel"):
         await msgaction.teamDel(gd, message)
 
     # Reset drivernos for the guild
-    elif message.content.startswith("##reset"):
+    elif message.content.startswith("## reset"):
         await msgaction.reset(gd, message)
 
 
