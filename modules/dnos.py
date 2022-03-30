@@ -78,28 +78,28 @@ def formatDrivers(guilddata, guildid):
         if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
             template[0] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
         else:
-            template[0] += "_<Vacant>_"
+            template[0] += "\u2800" * 4 + "--" + "\u2800" * 4
         template[0] += "\n"
     for i in range(10, 34):
         template[0] += f"`{i}` - "
         if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
             template[0] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
         else:
-            template[0] += "_<Vacant>_"
+            template[0] += "\u2800" * 4 + "--" + "\u2800" * 4
         template[0] += "\n"
     for i in range(34, 67):
         template[1] += f"`{i}` - "
         if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
             template[1] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
         else:
-            template[1] += "_<Vacant>_"
+            template[1] += "\u2800" * 4 + "--" + "\u2800" * 4
         template[1] += "\n"
     for i in range(67, 100):
         template[2] += f"`{i}` - "
         if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
             template[2] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
         else:
-            template[2] += "_<Vacant>_"
+            template[2] += "\u2800" * 4 + "--" + "\u2800" * 4
         template[2] += "\n"
 
     return template
@@ -157,8 +157,8 @@ async def gridEmbed(guilddata, guildid, channel):
 
     for team in guilddata[guildid]["grids"][str(channel.id)]["grid"]:
         temoji = str(emoji[team.lower().replace(" ", "")])
-        d1 = "_<Vacant>_"
-        d2 = "_<Vacant>_"
+        d1 = "\u2800" * 4 + "--" + "\u2800" * 4
+        d2 = "\u2800" * 4 + "--" + "\u2800" * 4
 
         if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0] is not None:
             d1 = "<@" + str(guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0]) + ">"

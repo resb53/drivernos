@@ -244,7 +244,7 @@ async def grid(guilddata, message):
     m = re.match(r"^## grid\s+<#(\d+)>", message.content)
 
     if m is None:
-        await message.channel.send("Provide a channel name to initialise. e.g: `## init #channel`")
+        await message.channel.send("Provide a channel name to initialise. e.g: `## grid #gridchannel`")
         return
 
     gridchan = message.guild.get_channel(int(m.group(1)))
