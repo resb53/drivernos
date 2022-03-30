@@ -112,15 +112,18 @@ async def updateDrivers(guilddata, guildid):
     return
 
 
-def gridEmbed(guilddata, guildid, channel):
+async def gridEmbed(guilddata, guildid, channel):
     embed = discord.Embed(
         title=channel.name,
         color=discord.Color.gold()
     )
 
+    emoji = await getEmojis()
+
     perrow = 0
 
     for team in guilddata[guildid]["grids"][str(channel.id)]["grid"]:
+        temoji = str(emoji[team.lower().replace(" ", "")])
         d1 = "_<Vacant>_"
         d2 = "_<Vacant>_"
 
@@ -131,7 +134,7 @@ def gridEmbed(guilddata, guildid, channel):
             d2 = "<@" + str(guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1]) + ">"
 
         embed.add_field(
-            name=team,
+            name=f"{temoji} {team}",
             value=f"{d1}\n{d2}",
             inline=True
         )
@@ -144,10 +147,31 @@ def gridEmbed(guilddata, guildid, channel):
     return embed
 
 
-async def emojis():
+async def getEmojis():
     guild = _config["client"].get_guild(948129536808189962)
 
-    return await guild.fetch_emojis()
+    temoji = {}
+
+    emoji = await guild.fetch_emojis()
+
+    for e in emoji:
+        temoji[e.name] = e
+
+    return temoji
+
+
+async def getEmoji(team):
+    guild = _config["client"].get_guild(948129536808189962)
+
+    name = team.lower().replace(" ", "")
+
+    emoji = await guild.fetch_emojis()
+
+    for e in emoji:
+        if e.name == name:
+            return e
+
+    return ""
 
 
 async def reapExpired(guilddata):

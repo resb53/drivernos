@@ -47,9 +47,6 @@ async def on_message(message):
     elif message.content.startswith("##test"):
         msgaction.test(gd, message)
 
-    elif message.content.startswith("##emojis"):
-        await msgaction.emojis()
-
     # Assign a user a number
     elif message.content.startswith("##assign"):
         await msgaction.assign(gd, message)
