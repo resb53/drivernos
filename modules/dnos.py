@@ -39,12 +39,18 @@ def writeConfig(guilddata, gid):
     alldata = readConfig()
     alldata[gid] = guilddata[gid]  # N.B. added by reference
 
+    # Test minimal output
+    try:
+        _ = json.dumps(alldata, separators=(',', ':'))
+    except TypeError as err:
+        sys.exit(f"Unable to write new config due to TypeError in guilddata: {err}")
+
+    # Write config
     try:
         output_fh = open(_config["file"], 'w')
     except IOError:
         sys.exit("Unable to open output file: " + _config["file"])
 
-    # Minify output
     json.dump(alldata, output_fh, separators=(',', ':'))
 
     return
