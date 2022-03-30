@@ -437,6 +437,12 @@ async def reset(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
+    if message.content != "##reset Everything":
+        await message.channel.send("**This will delete ALL drivernos data and is irreversible.**\n"
+                                   "If you are sure you would like to proceed, "
+                                   "use this exact command: `##reset Everything`")
+        return
+
     # Remove drivernos from server and cached data
     numchan = message.guild.get_channel(guilddata[message.guild.id]["config"]["numchanid"])
 
@@ -452,6 +458,16 @@ async def reset(guilddata, message):
                 await msg.delete()
         except discord.errors.NotFound:
             await message.channel.send("Unable to remove DriverNos records due to messages no longer existing.")
+
+    for gridchan in message.guild.get_channel(guilddata[message.guild.id]["grids"]):
+        if gridchan is None:
+            await message.channel.send("Unable to remove DriverNos grid due to channel no longer existing.")
+        else:
+            try:
+                msg = await gridchan.fetch_message(guilddata[message.guild.id]["grids"][str(gridchan.id)]["msg"]),
+                await msg.delete()
+            except discord.errors.NotFound:
+                await message.channel.send("Unable to remove DriverNos grid due to messages no longer existing.")
 
     dnos.removeConfig(message.guild.id)
     guilddata.pop(message.guild.id)
