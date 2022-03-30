@@ -338,12 +338,14 @@ async def teamAdd(guilddata, message):
         await message.channel.send(f"Team `{teamname}` not found. Use one of:\n{teamlist}")
         return
 
-    # Find available seat
+    # Find first available seat
     seat = None
 
     for s, driver in enumerate(guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname]):
         if driver is None:
             seat = s
+
+            break
         elif driver == member.id:
             await message.channel.send(f"<@{member.id}> already has a seat in "
                                        f"{await dnos.getEmoji(teamname)} **{teamname}**.")
