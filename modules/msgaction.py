@@ -83,7 +83,7 @@ async def assign(guilddata, message):
         await message.channel.send("Provide a tagged user and driver number. e.g: `## assign @DriverNos 1`")
         return
 
-    member = await message.guild.fetch_member(int(m.group(1)))
+    member = message.guild.get_member(int(m.group(1)))
     number = m.group(2)
 
     if int(number) not in range(1, 100):
@@ -140,7 +140,7 @@ async def unassign(guilddata, message):
         await message.channel.send("Provide a tagged user. e.g: `## unassign @DriverNos`")
         return
 
-    member = await message.guild.fetch_member(int(m.group(1)))
+    member = message.guild.get_member(int(m.group(1)))
 
     # Check if member has a number
     if member.id not in guilddata[message.guild.id]["numbers"].values():
@@ -154,6 +154,21 @@ async def unassign(guilddata, message):
             number = x[0]
     guilddata[message.guild.id]["numbers"].pop(number)
 
+    # Check if member is in any teams
+    changedGrids = set()
+
+    for grid in guilddata[message.guild.id]["grids"]:
+        for team in guilddata[message.guild.id]["grids"][grid]["grid"]:
+            if member.id in guilddata[message.guild.id]["grids"][grid]["grid"][team]:
+                seat = guilddata[message.guild.id]["grids"][grid]["grid"][team].index(member.id)
+                guilddata[message.guild.id]["grids"][grid]["grid"][team][seat] = None
+                await message.channel.send(f"Removing <@!{member.id}> from seat {seat + 1} in "
+                                           f"{dnos.getEmoji(team)} **{team}** of grid <#{grid}>.")
+                changedGrids.add(grid)
+
+    for grid in changedGrids:
+        await dnos.updateEmbed(guilddata, message.guild.id, message.guild.get_channel(int(grid)))
+
     # Update number channel
     err = await dnos.updateDrivers(guilddata, message.guild.id)
     if err is not None:
@@ -161,13 +176,6 @@ async def unassign(guilddata, message):
 
     # Unassign the number to the members nickname
     await memaction.setNick(guilddata, member, message=message)
-
-    # Check if member is in any teams
-    for grid in guilddata[message.guild.id]["grids"]:
-        for team in guilddata[message.guild.id]["grids"][grid]["grid"]:
-            if member.id in guilddata[message.guild.id]["grids"][grid]["grid"][team]:
-                seat = guilddata[message.guild.id]["grids"][grid]["grid"][team].index(member.id)
-                await message.channel.send(f"Code to remove <@!{member.id}> from seat {seat + 1} in {team}.")
 
     # Report success
     await message.channel.send(f"Member <@!{member.id}> unassigned from number `{number}`.")
@@ -287,7 +295,7 @@ async def teamAdd(guilddata, message):
         return
 
     teamname = m.group(1)
-    member = await message.guild.fetch_member(int(m.group(2)))
+    member = message.guild.get_member(int(m.group(2)))
     gridchan = message.guild.get_channel(int(m.group(3)))
 
     # Report if member not assigned a number
@@ -380,7 +388,7 @@ async def teamDel(guilddata, message):
                                    " is already empty.")
         return
 
-    member = await message.guild.fetch_member(
+    member = message.guild.get_member(
         guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat]
     )
     guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat] = None
