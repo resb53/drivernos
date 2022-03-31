@@ -418,11 +418,7 @@ async def reset(guilddata, message):
             return
 
         # Get specified channel
-        gridchan = None
-
-        for channel in message.guild.channels:
-            if channel.id == int(mg.group(1)):
-                gridchan = channel
+        gridchan = message.guild.get_channel(int(mg.group(1)))
 
         # Remove message and record in guilddata
         gridmsg = await gridchan.fetch_message(guilddata[message.guild.id]["grids"][str(gridchan.id)]["msg"])
