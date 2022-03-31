@@ -127,17 +127,17 @@ async def updateDrivers(guilddata, guildid):
     embed.add_field(
         name="\u200b",
         value=numbers[0],
-        inline=True
+        inline=False
     )
     embed.add_field(
         name="\u200b",
         value=numbers[1],
-        inline=True
+        inline=False
     )
     embed.add_field(
         name="\u200b",
         value=numbers[2],
-        inline=True
+        inline=False
     )
 
     msg = await numchan.fetch_message(guilddata[guildid]["config"]["msg"])
