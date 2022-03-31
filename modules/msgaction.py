@@ -267,11 +267,8 @@ async def grid(guilddata, message):
 
     dnos.writeConfig(guilddata, message.guild.id)
 
-    # Update to Embed
-    await gridmsg.edit(
-        content=None,
-        embed=await dnos.gridEmbed(guilddata, message.guild.id, gridchan)
-    )
+    # Update Embed
+    await dnos.updateEmbed(guilddata, message.guild.id, gridchan)
 
     await message.channel.send(f"Grid has been initialised in <#{gridchan.id}>.")
 
@@ -342,12 +339,7 @@ async def teamAdd(guilddata, message):
     dnos.writeConfig(guilddata, message.guild.id)
 
     # Update Embed
-    gridmsg = await gridchan.fetch_message(guilddata[message.guild.id]["grids"][str(gridchan.id)]["msg"])
-
-    await gridmsg.edit(
-        content=None,
-        embed=await dnos.gridEmbed(guilddata, message.guild.id, gridchan)
-    )
+    await dnos.updateEmbed(guilddata, message.guild.id, gridchan)
 
     await message.channel.send(f"<@{member.id}> has been assigned seat {seat + 1} "
                                f"in {await dnos.getEmoji(teamname)} **{teamname}** of grid <#{gridchan.id}>.")
@@ -395,12 +387,7 @@ async def teamDel(guilddata, message):
     dnos.writeConfig(guilddata, message.guild.id)
 
     # Update Embed
-    gridmsg = await gridchan.fetch_message(guilddata[message.guild.id]["grids"][str(gridchan.id)]["msg"])
-
-    await gridmsg.edit(
-        content=None,
-        embed=await dnos.gridEmbed(guilddata, message.guild.id, gridchan)
-    )
+    await dnos.updateEmbed(guilddata, message.guild.id, gridchan)
 
     await message.channel.send(f"<@{member.id}> has been removed from seat {seat + 1} "
                                f"in {await dnos.getEmoji(teamname)} **{teamname}** of grid <#{gridchan.id}>.")
@@ -412,10 +399,41 @@ async def reset(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    if message.content != "## reset Everything":
-        await message.channel.send("**This will delete ALL drivernos data and is irreversible.**\n"
-                                   "If you are sure you would like to proceed, "
-                                   "use this exact command: `## reset Everything`")
+    m = re.match(r"^## reset (Everything|<#\d+>)$", message.content)
+
+    if m is None:
+        await message.channel.send(
+            "Reset options:\n"
+            "`## reset Everything`: **This will delete ALL drivernos data and is irreversible.**\n"
+            "`## reset #gridchannel`: This will remove a grid from existence and is irreversible."
+        )
+        return
+
+    mg = re.match(r"^<#(\d+)>$", m.group(1))
+
+    if mg is not None:
+        # Remove specified grid only.
+        if mg.group(1) not in guilddata[message.guild.id]["grids"]:
+            await message.channel.send(f"<#{mg.group(1)}> is not an initialised grid channel and cannot be reset.")
+            return
+
+        # Get specified channel
+        gridchan = None
+
+        for channel in message.guild.channels:
+            if channel.id == int(mg.group(1)):
+                gridchan = channel
+
+        # Remove message and record in guilddata
+        gridmsg = await gridchan.fetch_message(guilddata[message.guild.id]["grids"][str(gridchan.id)]["msg"])
+        await gridmsg.delete()
+
+        guilddata[message.guild.id]["grids"].pop(str(gridchan.id))
+
+        dnos.writeConfig(guilddata, message.guild.id)
+
+        await message.channel.send(f"<#{gridchan.id}> has been reset.")
+
         return
 
     # Remove drivernos from server and cached data

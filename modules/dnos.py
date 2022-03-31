@@ -180,6 +180,18 @@ async def gridEmbed(guilddata, guildid, channel):
     return embed
 
 
+async def updateEmbed(guilddata, guildid, channel):
+    # Get message
+    msg = await channel.fetch_message(guilddata[guildid]["grids"][str(channel.id)]["msg"])
+
+    await msg.edit(
+        content=None,
+        embed=await gridEmbed(guilddata, guildid, channel)
+    )
+
+    return
+
+
 async def getEmojis():
     guild = _config["client"].get_guild(948129536808189962)
 
