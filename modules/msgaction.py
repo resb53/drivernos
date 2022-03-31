@@ -318,11 +318,11 @@ async def teamAdd(guilddata, message):
             break
         elif driver == member.id:
             await message.channel.send(f"<@{member.id}> already has a seat in "
-                                       f"{await dnos.getEmoji(teamname)} **{teamname}**.")
+                                       f"{dnos.getEmoji(teamname)} **{teamname}**.")
             return
 
     if seat is None:
-        await message.channel.send(f"No available seats in {await dnos.getEmoji(teamname)} **{teamname}**.\n"
+        await message.channel.send(f"No available seats in {dnos.getEmoji(teamname)} **{teamname}**.\n"
                                    f"Use `## teamdel` to release a seat.")
         return
 
@@ -332,7 +332,7 @@ async def teamAdd(guilddata, message):
             oldseat = guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][oldteam].index(member.id)
             guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][oldteam][oldseat] = None
             await message.channel.send(f"<@{member.id}> has moved from seat {oldseat + 1} "
-                                       f"in {await dnos.getEmoji(oldteam)} **{oldteam}** of grid <#{gridchan.id}>.")
+                                       f"in {dnos.getEmoji(oldteam)} **{oldteam}** of grid <#{gridchan.id}>.")
 
     # Assign seat
     guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat] = member.id
@@ -342,7 +342,7 @@ async def teamAdd(guilddata, message):
     await dnos.updateEmbed(guilddata, message.guild.id, gridchan)
 
     await message.channel.send(f"<@{member.id}> has been assigned seat {seat + 1} "
-                               f"in {await dnos.getEmoji(teamname)} **{teamname}** of grid <#{gridchan.id}>.")
+                               f"in {dnos.getEmoji(teamname)} **{teamname}** of grid <#{gridchan.id}>.")
 
     return
 
@@ -376,7 +376,7 @@ async def teamDel(guilddata, message):
 
     # If seat assigned, remove the driver, else report no change.
     if guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat] is None:
-        await message.channel.send(f"Seat {seat + 1} in {await dnos.getEmoji(teamname)} **{teamname}**"
+        await message.channel.send(f"Seat {seat + 1} in {dnos.getEmoji(teamname)} **{teamname}**"
                                    " is already empty.")
         return
 
@@ -390,7 +390,7 @@ async def teamDel(guilddata, message):
     await dnos.updateEmbed(guilddata, message.guild.id, gridchan)
 
     await message.channel.send(f"<@{member.id}> has been removed from seat {seat + 1} "
-                               f"in {await dnos.getEmoji(teamname)} **{teamname}** of grid <#{gridchan.id}>.")
+                               f"in {dnos.getEmoji(teamname)} **{teamname}** of grid <#{gridchan.id}>.")
 
     return
 

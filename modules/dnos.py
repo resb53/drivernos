@@ -145,13 +145,13 @@ async def updateDrivers(guilddata, guildid):
     return
 
 
-async def gridEmbed(guilddata, guildid, channel):
+def gridEmbed(guilddata, guildid, channel):
     embed = discord.Embed(
         title=channel.name,
         color=discord.Color.gold()
     )
 
-    emoji = await getEmojis()
+    emoji = getEmojis()
 
     perrow = 0
 
@@ -186,18 +186,18 @@ async def updateEmbed(guilddata, guildid, channel):
 
     await msg.edit(
         content=None,
-        embed=await gridEmbed(guilddata, guildid, channel)
+        embed=gridEmbed(guilddata, guildid, channel)
     )
 
     return
 
 
-async def getEmojis():
+def getEmojis():
     guild = _config["client"].get_guild(948129536808189962)
 
     temoji = {}
 
-    emoji = await guild.fetch_emojis()
+    emoji = guild.emojis
 
     for e in emoji:
         temoji[e.name] = e
@@ -205,12 +205,12 @@ async def getEmojis():
     return temoji
 
 
-async def getEmoji(team):
+def getEmoji(team):
     guild = _config["client"].get_guild(948129536808189962)
 
     name = team.lower().replace(" ", "")
 
-    emoji = await guild.fetch_emojis()
+    emoji = guild.emojis
 
     for e in emoji:
         if e.name == name:
