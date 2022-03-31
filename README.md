@@ -15,37 +15,3 @@ This is for racing leagues to help manage assignment of driver numbers, and usin
 ## teamdel:  Remove a driver from a team in a grid channel.
 ## reset:    Reset and wipe all help data for this guild.
 ```
-
-    elif message.content.startswith("## init"):
-        await msgaction.init(gd, message)
-
-    # Assign a user a number
-    elif message.content.startswith("## assign"):
-        await msgaction.assign(gd, message)
-
-    # Unassign a user a number
-    elif message.content.startswith("## unassign"):
-        await msgaction.unassign(gd, message)
-
-    # Move the numbers listing to a new channel
-    elif message.content.startswith("## move"):
-        await msgaction.move(gd, message)
-
-    # Reset drivernos for the guild
-    elif message.content.startswith("## expiry"):
-        await msgaction.setExpiry(gd, message)
-
-    # Initialise grid in guild
-    elif message.content.startswith("## grid"):
-        await msgaction.grid(gd, message)
-
-    # Add driver to team
-    elif message.content.startswith("## teamadd"):
-        await msgaction.teamAdd(gd, message)
-
-    # Remove driver from team
-    elif message.content.startswith("## teamdel"):
-        await msgaction.teamDel(gd, message)
-
-    # Reset drivernos for the guild
-    elif message.content.startswith("## reset"):

@@ -162,6 +162,13 @@ async def unassign(guilddata, message):
     # Unassign the number to the members nickname
     await memaction.setNick(guilddata, member, message=message)
 
+    # Check if member is in any teams
+    for grid in guilddata[message.guild.id]["grids"]:
+        for team in guilddata[message.guild.id]["grids"][grid]["grid"]:
+            if member.id in guilddata[message.guild.id]["grids"][grid]["grid"][team]:
+                seat = guilddata[message.guild.id]["grids"][grid]["grid"][team].index(member.id)
+                await message.channel.send(f"Code to remove <@!{member.id}> from seat {seat + 1} in {team}.")
+
     # Report success
     await message.channel.send(f"Member <@!{member.id}> unassigned from number `{number}`.")
 
@@ -285,6 +292,12 @@ async def teamAdd(guilddata, message):
     teamname = m.group(1)
     member = await message.guild.fetch_member(int(m.group(2)))
     gridchan = message.guild.get_channel(int(m.group(3)))
+
+    # Report if member not assigned a number
+    if member.id not in guilddata[message.guild.id]["numbers"].values():
+        await message.channel.send(f"<@{member.id}> has not been assigned a driver number. "
+                                   "Use `## assign` to assign them one.")
+        return
 
     # Report if grid channel not initialised
     if str(gridchan.id) not in guilddata[message.guild.id]["grids"]:
