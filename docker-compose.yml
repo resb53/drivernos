@@ -1,8 +1,9 @@
-version: "0.1"
+version: "3.8"
 
 services:
   drivernos:
     image: resb53/drivernos:latest
+    restart: always
     secrets:
       - drivernos-secret
     volumes:

@@ -105,4 +105,4 @@ if token is None:
 
     token = token_fh.read()
 
-client.run(os.getenv("TOKEN"))
+client.run(token)
