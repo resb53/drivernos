@@ -5,20 +5,6 @@ import discord
 import re
 from . import dnos, memaction
 
-# Template grid for reuse
-_gridtemplate = {
-    "Alfa Romeo": [None, None],
-    "Alpha Tauri": [None, None],
-    "Alpine": [None, None],
-    "Aston Martin": [None, None],
-    "Ferrari": [None, None],
-    "Haas": [None, None],
-    "McLaren": [None, None],
-    "Mercedes": [None, None],
-    "Red Bull": [None, None],
-    "Williams": [None, None]
-}
-
 
 async def _validateInit(guilddata, message, admin=False):
     if admin:
@@ -241,6 +227,21 @@ async def setExpiry(guilddata, message):
     return
 
 
+def gridTemplate():
+    return {
+        "Alfa Romeo": [None, None],
+        "Alpha Tauri": [None, None],
+        "Alpine": [None, None],
+        "Aston Martin": [None, None],
+        "Ferrari": [None, None],
+        "Haas": [None, None],
+        "McLaren": [None, None],
+        "Mercedes": [None, None],
+        "Red Bull": [None, None],
+        "Williams": [None, None]
+    }
+
+
 async def grid(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
@@ -264,7 +265,7 @@ async def grid(guilddata, message):
 
     # Initialise guild data
     guilddata[message.guild.id]["grids"][str(gridchan.id)] = {
-        "grid": _gridtemplate.copy(),
+        "grid": gridTemplate(),
         "msg": gridmsg.id
     }
 
