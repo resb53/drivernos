@@ -22,15 +22,16 @@ def startClient(configfile="filename"):
 
 
 def readConfig():
+    config = {}
+
     try:
         input_fh = open(_config["file"], 'r')
+        config = json.load(input_fh)
+
+        # Convert JSON string keys to ints
+        config = {int(k): v for k, v in config.items()}
     except IOError:
-        sys.exit("Unable to open input file: " + _config["file"])
-
-    config = json.load(input_fh)
-
-    # Convert JSON string keys to ints
-    config = {int(k): v for k, v in config.items()}
+        print("Unable to open input file: " + _config["file"] + ", creating fresh data.")
 
     return config
 

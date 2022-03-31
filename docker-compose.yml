@@ -3,11 +3,10 @@ version: "3.8"
 services:
   drivernos:
     image: resb53/drivernos:latest
-    restart: always
     secrets:
       - drivernos-secret
     volumes:
-      - drivernos:/run/app/data:rw
+      - .:/run/app/data:rw
 
 secrets:
   drivernos-secret:
