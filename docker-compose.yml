@@ -3,6 +3,12 @@ version: "3.8"
 services:
   drivernos:
     image: resb53/drivernos:latest
+    container_name: drivernos
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "12"
     secrets:
       - drivernos-secret
     volumes:
