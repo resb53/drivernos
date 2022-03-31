@@ -1,4 +1,5 @@
 import os
+import sys
 from modules import dnos, memaction, msgaction
 from discord.ext import tasks
 
@@ -92,5 +93,16 @@ async def on_member_join(member):
         await memaction.handleRejoiner(gd, member)
     await memaction.setNick(gd, member)
 
+
+# Get token and run
+token = os.getenv("TOKEN")
+
+if token is None:
+    try:
+        token_fh = open("/run/secrets/drivernos-secret")
+    except IOError:
+        sys.exit("Unable to find bot token.")
+
+    token = token_fh.read()
 
 client.run(os.getenv("TOKEN"))

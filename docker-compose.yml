@@ -1,0 +1,13 @@
+version: "0.1"
+
+services:
+  drivernos:
+    image: resb53/drivernos:latest
+    secrets:
+      - drivernos-secret
+    volumes:
+      - drivernos:/run/app/data:rw
+
+secrets:
+  drivernos-secret:
+    external: true
