@@ -74,8 +74,9 @@ async def on_message(message):
 # Control nicknames when a nickname is changed.
 @client.event
 async def on_member_update(before, after):
-    if before.nick != after.nick:
-        await memaction.setNick(gd, after)
+    if after.guild.id in gd:
+        if before.nick != after.nick:
+            await memaction.setNick(gd, after)
 
 
 # Handle events when member leaves the guild it feature enabled
