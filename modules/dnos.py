@@ -84,36 +84,26 @@ def removeConfig(gid):
 
 
 def formatDrivers(guilddata, guildid):
-    # Get Driver Nicknames
-    nicks = {}
-    guild = _config["client"].get_guild(guildid)
-    membs = guild.members
-    for member in membs:
-        if member.nick is not None:
-            m = re.match(r"^\d{1,2} \|\| (.+)", member.nick)
-            if m is not None:
-
-                nicks[member.id] = m.group(1)
-
     template = ["", ""]
+
     for i in range(1, 10):
         template[0] += f"` {i}` - "
         if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
-            template[0] += f"{nicks[guilddata[guildid]['numbers'][str(i)]]}"
+            template[0] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
         else:
             template[0] += "\u2800" * 4 + "--" + "\u2800" * 4
         template[0] += "\n"
     for i in range(10, 51):
         template[0] += f"`{i}` - "
         if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
-            template[0] += f"{nicks[guilddata[guildid]['numbers'][str(i)]]}"
+            template[0] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
         else:
             template[0] += "\u2800" * 4 + "--" + "\u2800" * 4
         template[0] += "\n"
     for i in range(51, 100):
         template[1] += f"`{i}` - "
         if guildid in guilddata and str(i) in guilddata[guildid]["numbers"]:
-            template[1] += f"{nicks[guilddata[guildid]['numbers'][str(i)]]}"
+            template[1] += f"<@{guilddata[guildid]['numbers'][str(i)]}>"
         else:
             template[1] += "\u2800" * 4 + "--" + "\u2800" * 4
         template[1] += "\n"

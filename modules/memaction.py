@@ -47,9 +47,7 @@ async def setNick(guilddata, member, message=None):
                                        "Bot must be a higher rank than the member. "
                                        "Guild owner must manually set nickname.")
 
-    # Check if grids or numbers need to be updated
-    if member.id in guilddata[member.guild.id]["numbers"].values():
-        await dnos.updateDrivers(guilddata, member.guild.id)
+    # Check if grids need to be updated
     for grid in guilddata[member.guild.id]["grids"]:
         changed = False
         for team in guilddata[member.guild.id]["grids"][grid]["grid"]:
