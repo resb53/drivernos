@@ -61,6 +61,35 @@ async def init(guilddata, message):
     return
 
 
+async def migrate(guilddata, message):
+    # Remove old single message
+    numchan = message.guild.get_channel(guilddata[message.guild.id]["config"]["numchanid"])
+
+    msg = message.guild.get_channel(guilddata[message.guild.id]["config"]["msg"])
+
+    if type(msg) is not int:
+        await message.channel.send("Drivernos has already migrated this guild to new format.")
+        return
+
+    try:
+        for msgid in msg:
+            m = await numchan.fetch_message(msgid)
+            await m.delete()
+    except discord.errors.NotFound:
+        await message.channel.send("Unable to remove DriverNos records due to messages no longer existing.")
+
+    # Create new formatted messages
+    msg1 = await numchan.send("Number Channel Placeholder 1")
+    msg2 = await numchan.send("Number Channel Placeholder 2")
+    guilddata[message.guild.id]["config"]["msg"] = [msg1.id, msg2.id]
+
+    await dnos.updateDrivers(guilddata, message.guild.id)
+
+    await message.channel.send(f"DriverNos has migrated to the new number format in <#{numchan.id}>.")
+
+    return
+
+
 async def assign(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return

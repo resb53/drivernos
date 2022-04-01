@@ -38,6 +38,10 @@ async def on_message(message):
     elif message.content.startswith(dnos.getCmd() + " init"):
         await msgaction.init(gd, message)
 
+    # Migrate to new number format
+    elif message.content.startswith(dnos.getCmd() + " migrate"):
+        await msgaction.migrate(gd, message)
+
     # Assign a user a number
     elif message.content.startswith(dnos.getCmd() + " assign"):
         await msgaction.assign(gd, message)
