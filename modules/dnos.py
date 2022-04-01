@@ -90,7 +90,6 @@ def formatDrivers(guilddata, guildid):
     membs = guild.members
     for member in membs:
         if member.nick is not None:
-            print(member.nick)
             m = re.match(r"^\d{1,2} \|\| (.+)", member.nick)
             if m is not None:
 
@@ -170,6 +169,17 @@ async def updateDrivers(guilddata, guildid):
 
 
 def gridEmbed(guilddata, guildid, channel):
+    # Get Driver Nicknames
+    nicks = {}
+    guild = _config["client"].get_guild(guildid)
+    membs = guild.members
+    for member in membs:
+        if member.nick is not None:
+            m = re.match(r"^\d{1,2} \|\| (.+)", member.nick)
+            if m is not None:
+
+                nicks[member.id] = m.group(1)
+
     embed = discord.Embed(
         title=channel.name,
         color=discord.Color.gold()
@@ -185,10 +195,10 @@ def gridEmbed(guilddata, guildid, channel):
         d2 = "\u2800" * 4 + "--" + "\u2800" * 4
 
         if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0] is not None:
-            d1 = "<@" + str(guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0]) + ">"
+            d1 = nicks[guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0]]
 
         if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1] is not None:
-            d2 = "<@" + str(guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1]) + ">"
+            d2 = nicks[guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1]]
 
         embed.add_field(
             name=f"{temoji} {team}",
