@@ -21,6 +21,16 @@ def startClient(configfile="filename"):
     return _config["client"]
 
 
+# Return start string depending on prod or dev bot
+def getCmd():
+    name = _config["client"].user.name
+
+    if name == "DriverNos":
+        return "##"
+    else:
+        return "!!"
+
+
 def readConfig():
     config = {}
 

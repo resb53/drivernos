@@ -30,7 +30,8 @@ async def init(guilddata, message):
                                    "To reset, use `## reset` and then run `## init` again.")
         return
 
-    m = re.match(r"^## init\s+<#(\d+)>", message.content)
+    cmd = dnos.getCmd()
+    m = re.match("^" + cmd + r" init\s+<#(\d+)>", message.content)
 
     if m is None:
         await message.channel.send("Provide a channel name to initialise. e.g: `## init #channel`")
@@ -63,7 +64,8 @@ async def assign(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    m = re.match(r"^## assign\s+<@!?(\d+)>\s+(\d+)", message.content)
+    cmd = dnos.getCmd()
+    m = re.match("^" + cmd + r" assign\s+<@!?(\d+)>\s+(\d+)", message.content)
 
     if m is None:
         await message.channel.send("Provide a tagged user and driver number. e.g: `## assign @DriverNos 1`")
@@ -120,7 +122,8 @@ async def unassign(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    m = re.match(r"^## unassign\s+<@!?(\d+)>", message.content)
+    cmd = dnos.getCmd()
+    m = re.match("^" + cmd + r" unassign\s+<@!?(\d+)>", message.content)
 
     if m is None:
         await message.channel.send("Provide a tagged user. e.g: `## unassign @DriverNos`")
@@ -173,7 +176,8 @@ async def move(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    m = re.match(r"^## move\s+<#(\d+)>", message.content)
+    cmd = dnos.getCmd()
+    m = re.match("^" + cmd + r" move\s+<#(\d+)>", message.content)
 
     if m is None:
         await message.channel.send("Provide a channel name to move records to. e.g: `## move #newchannel`")
@@ -210,7 +214,8 @@ async def setExpiry(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    m = re.match(r"^## expiry\s+(\-?\d+)", message.content)
+    cmd = dnos.getCmd()
+    m = re.match("^" + cmd + r" expiry\s+(\-?\d+)", message.content)
 
     # Report current expiry if no time given.
     if m is None:
@@ -252,7 +257,8 @@ async def grid(guilddata, message):
         await message.channel.send("Provide a channel name to setup grid. e.g: `## grid #gridchannel`")
         return
 
-    m = re.match(r"^## grid\s+<#(\d+)>", message.content)
+    cmd = dnos.getCmd()
+    m = re.match("^" + cmd + r" grid\s+<#(\d+)>", message.content)
 
     if m is None:
         await message.channel.send("Provide a channel name to initialise. e.g: `## grid #gridchannel`")
@@ -283,7 +289,8 @@ async def teamAdd(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    m = re.match(r"^## teamadd\s+([^<]+)\s+<@!?(\d+)>\s+<#(\d+)>", message.content)
+    cmd = dnos.getCmd()
+    m = re.match("^" + cmd + r" teamadd\s+([^<]+)\s+<@!?(\d+)>\s+<#(\d+)>", message.content)
 
     # Report usage if no match found.
     if m is None:
@@ -355,7 +362,8 @@ async def teamDel(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    m = re.match(r"^## teamdel\s+([^<]+)\s+([12])\s+<#(\d+)>", message.content)
+    cmd = dnos.getCmd()
+    m = re.match("^" + cmd + r" teamdel\s+([^<]+)\s+([12])\s+<#(\d+)>", message.content)
 
     # Report usage if no match found.
     if m is None:
@@ -403,7 +411,8 @@ async def reset(guilddata, message):
     if not await _validateInit(guilddata, message, admin=True):
         return
 
-    m = re.match(r"^## reset (Everything|<#\d+>)$", message.content)
+    cmd = dnos.getCmd()
+    m = re.match("^" + cmd + r" reset (Everything|<#\d+>)$", message.content)
 
     if m is None:
         await message.channel.send(
