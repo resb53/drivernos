@@ -65,18 +65,17 @@ async def migrate(guilddata, message):
     # Remove old single message
     numchan = message.guild.get_channel(guilddata[message.guild.id]["config"]["numchanid"])
 
-    msg = message.guild.get_channel(guilddata[message.guild.id]["config"]["msg"])
+    msgid = guilddata[message.guild.id]["config"]["msg"]
 
-    if type(msg) is not int:
+    if type(msgid) is not int:
         await message.channel.send("Drivernos has already migrated this guild to new format.")
         return
 
     try:
-        for msgid in msg:
-            m = await numchan.fetch_message(msgid)
-            await m.delete()
+        m = await numchan.fetch_message(msgid)
+        await m.delete()
     except discord.errors.NotFound:
-        await message.channel.send("Unable to remove DriverNos records due to messages no longer existing.")
+        await message.channel.send("Unable to remove DriverNos records due to message no longer existing.")
 
     # Create new formatted messages
     msg1 = await numchan.send("Number Channel Placeholder 1")
