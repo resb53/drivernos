@@ -40,12 +40,13 @@ async def init(guilddata, message):
     numchan = message.guild.get_channel(int(m.group(1)))
 
     # Print driver numbers to number channel
-    msg = await numchan.send("Number Channel Placeholder")
+    msg1 = await numchan.send("Number Channel Placeholder 1")
+    msg2 = await numchan.send("Number Channel Placeholder 2")
 
     # Initialise guild data
     guilddata[message.guild.id] = {}
     guilddata[message.guild.id]["config"] = {
-        "msg": msg.id,
+        "msg": [msg1.id, msg2.id],
         "numchanid": numchan.id,
         "expiration": 1209600  # 2 weeks, use -1 for off, 0 for instant, else up to an hour minimum
     }
@@ -191,16 +192,18 @@ async def move(guilddata, message):
         await message.channel.send("Unable to remove old DriverNos records due to channel no longer existing.")
     else:
         try:
-            msg = await oldnumchan.fetch_message(guilddata[message.guild.id]["config"]["msg"])
-            await msg.delete()
+            for msgid in guilddata[message.guild.id]["config"]["msg"]:
+                msg = await oldnumchan.fetch_message(msgid)
+                await msg.delete()
         except discord.errors.NotFound:
             await message.channel.send("Unable to remove DriverNos records due to messages no longer existing.")
 
     # Print driver numbers to number channel
-    msg = await newnumchan.send("Number Channel Placeholder")
+    msg1 = await newnumchan.send("Number Channel Placeholder 1")
+    msg2 = await newnumchan.send("Number Channel Placeholder 2")
 
     # Update guild data
-    guilddata[message.guild.id]["config"]["msg"] = msg.id
+    guilddata[message.guild.id]["config"]["msg"] = [msg1.id, msg2.id]
     guilddata[message.guild.id]["config"]["numchanid"] = newnumchan.id
 
     await dnos.updateDrivers(guilddata, message.guild.id)
@@ -452,8 +455,9 @@ async def reset(guilddata, message):
         await message.channel.send("Unable to remove DriverNos records due to channel no longer existing.")
     else:
         try:
-            msg = await numchan.fetch_message(guilddata[message.guild.id]["config"]["msg"])
-            await msg.delete()
+            for msgid in guilddata[message.guild.id]["config"]["msg"]:
+                msg = await numchan.fetch_message(msgid)
+                await msg.delete()
         except discord.errors.NotFound:
             await message.channel.send("Unable to remove DriverNos records due to messages no longer existing.")
 
