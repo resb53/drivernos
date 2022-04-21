@@ -169,7 +169,7 @@ def gridEmbed(guilddata, guildid, channel):
             else:
                 for d2num in guilddata[guildid]["numbers"]:
                     if guilddata[guildid]["numbers"][d2num] == guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1]:
-                        d2 = str(d1num) + " || " + "<Unknown>"
+                        d2 = str(d2num) + " || " + "<Unknown>"
 
         # Swap pipes to avoid discord creating spoilers
         d1 = d1.translate(str.maketrans("|", "/"))
