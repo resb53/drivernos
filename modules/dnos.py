@@ -5,7 +5,6 @@ import sys
 import json
 import discord
 import time
-import re
 from . import permissions
 
 # Module-wide globals
@@ -138,10 +137,9 @@ def gridEmbed(guilddata, guildid, channel):
     membs = guild.members
     for member in membs:
         if member.nick is not None:
-            m = re.match(r"^\d{1,2} \|\| (.+)", member.nick)
-            if m is not None:
-
-                nicks[member.id] = m.group(1)
+            nicks[member.id] = member.nick
+        else:
+            nicks[member.id] = member.name
 
     embed = discord.Embed(
         title=channel.name,
@@ -158,10 +156,24 @@ def gridEmbed(guilddata, guildid, channel):
         d2 = "\u2800" * 4 + "--" + "\u2800" * 4
 
         if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0] is not None:
-            d1 = nicks[guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0]]
+            if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0] in nicks:
+                d1 = nicks[guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0]]
+            else:
+                for d1num in guilddata[guildid]["numbers"]:
+                    if guilddata[guildid]["numbers"][d1num] == guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0]:
+                        d1 = str(d1num) + " || " + "<Unknown>"
 
         if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1] is not None:
-            d2 = nicks[guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1]]
+            if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1] in nicks:
+                d2 = nicks[guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1]]
+            else:
+                for d2num in guilddata[guildid]["numbers"]:
+                    if guilddata[guildid]["numbers"][d2num] == guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1]:
+                        d2 = str(d1num) + " || " + "<Unknown>"
+
+        # Swap pipes to avoid discord creating spoilers
+        d1 = d1.translate(str.maketrans("|", "/"))
+        d2 = d2.translate(str.maketrans("|", "/"))
 
         embed.add_field(
             name=f"{temoji} {team}",
