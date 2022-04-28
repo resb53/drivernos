@@ -3,6 +3,7 @@ Bot Operations for Discord Message actions.
 '''
 import discord
 import re
+import string
 from . import dnos, memaction
 
 
@@ -335,7 +336,7 @@ async def teamAdd(guilddata, message):
         await message.channel.send("Usage: `## teamadd teamname @username #gridchannel`")
         return
 
-    teamname = m.group(1)
+    teamname = string.capwords(m.group(1))
     member = message.guild.get_member(int(m.group(2)))
     gridchan = message.guild.get_channel(int(m.group(3)))
 
@@ -408,7 +409,7 @@ async def teamDel(guilddata, message):
         await message.channel.send("Usage: `## teamdel teamname seatnum(1,2) #gridchannel`")
         return
 
-    teamname = m.group(1)
+    teamname = string.capwords(m.group(1))
     seat = int(m.group(2)) - 1
     gridchan = message.guild.get_channel(int(m.group(3)))
 
