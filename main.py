@@ -86,17 +86,19 @@ async def on_member_update(before, after):
 # Handle events when member leaves the guild it feature enabled
 @client.event
 async def on_member_remove(member):
-    if gd[member.guild.id]["config"]["expiration"] > -1:
-        if member.id in gd[member.guild.id]["numbers"].values():
-            await memaction.handleLeaver(gd, member)
+    if member.guild.id in gd:
+        if gd[member.guild.id]["config"]["expiration"] > -1:
+            if member.id in gd[member.guild.id]["numbers"].values():
+                await memaction.handleLeaver(gd, member)
 
 
-# Handle events when member leaves the guild it feature enabled
+# Handle events when member joins the guild
 @client.event
 async def on_member_join(member):
-    if member.id in gd[member.guild.id]["numbers"].values():
-        await memaction.handleRejoiner(gd, member)
-    await memaction.setNick(gd, member)
+    if member.guild.id in gd:
+        if member.id in gd[member.guild.id]["numbers"].values():
+            await memaction.handleRejoiner(gd, member)
+        await memaction.setNick(gd, member)
 
 
 # Get token and run
