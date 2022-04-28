@@ -152,32 +152,19 @@ def gridEmbed(guilddata, guildid, channel):
 
     for team in guilddata[guildid]["grids"][str(channel.id)]["grid"]:
         temoji = str(emoji[team.lower().replace(" ", "")])
-        d1 = "\u2800" * 4 + "--" + "\u2800" * 4
-        d2 = "\u2800" * 4 + "--" + "\u2800" * 4
+        drivers = ["\u2800" * 4 + "--" + "\u2800" * 4, "\u2800" * 4 + "--" + "\u2800" * 4]
+        memberids = guilddata[guildid]["grids"][str(channel.id)]["grid"][team]
 
-        if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0] is not None:
-            if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0] in nicks:
-                d1 = nicks[guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0]]
-            else:
-                for d1num in guilddata[guildid]["numbers"]:
-                    if guilddata[guildid]["numbers"][d1num] == guilddata[guildid]["grids"][str(channel.id)]["grid"][team][0]:
-                        d1 = str(d1num) + " || " + "<Unknown>"
-
-        if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1] is not None:
-            if guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1] in nicks:
-                d2 = nicks[guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1]]
-            else:
-                for d2num in guilddata[guildid]["numbers"]:
-                    if guilddata[guildid]["numbers"][d2num] == guilddata[guildid]["grids"][str(channel.id)]["grid"][team][1]:
-                        d2 = str(d2num) + " || " + "<Unknown>"
-
-        # Swap pipes to avoid discord creating spoilers
-        d1 = d1.translate(str.maketrans("|", "/"))
-        d2 = d2.translate(str.maketrans("|", "/"))
+        for seat, memberid in enumerate(memberids):
+            if memberid is not None:
+                if memberid in nicks:
+                    drivers[seat] = nicks[memberid].translate(str.maketrans("|", "/"))
+                else:
+                    drivers[seat] = f"`{getNumFromId(guilddata, guildid, memberid)} // <Unknown>`"
 
         embed.add_field(
             name=f"{temoji} {team}",
-            value=f"{d1}\n{d2}",
+            value="\n".join(drivers),
             inline=True
         )
         perrow += 1
@@ -199,6 +186,13 @@ async def updateEmbed(guilddata, guildid, channel):
     )
 
     return
+
+
+def getNumFromId(guilddata, guildid, memberid):
+    # Return first driver number found for member id or None
+    for num in guilddata[guildid]["numbers"]:
+        if guilddata[guildid]["numbers"][num] == memberid:
+            return num
 
 
 def getEmojis():

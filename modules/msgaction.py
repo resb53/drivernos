@@ -423,16 +423,21 @@ async def teamDel(guilddata, message):
                                    " is already empty.")
         return
 
-    member = message.guild.get_member(
-        guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat]
-    )
+    memberid = guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat]
+    member = message.guild.get_member(memberid)
+
+    if member is not None:
+        member = f"<@{member.id}>"
+    else:
+        member = f"`{dnos.getNumFromId(guilddata, message.guild.id, memberid)} || <Unknown>`"
+
     guilddata[message.guild.id]["grids"][str(gridchan.id)]["grid"][teamname][seat] = None
     dnos.writeConfig(guilddata, message.guild.id)
 
     # Update Embed
     await dnos.updateEmbed(guilddata, message.guild.id, gridchan)
 
-    await message.channel.send(f"<@{member.id}> has been removed from seat {seat + 1} "
+    await message.channel.send(f"{member} has been removed from seat {seat + 1} "
                                f"in {dnos.getEmoji(teamname)} **{teamname}** of grid <#{gridchan.id}>.")
 
     return
