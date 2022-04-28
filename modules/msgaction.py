@@ -133,6 +133,13 @@ async def assign(guilddata, message):
         guilddata[message.guild.id]["numbers"][number] = member.id
         report = f"Driver number `{number}` assigned to <@{member.id}>, and number `{oldnum}` released."
 
+        # Update grid if driver was in one
+        for grid in guilddata[message.guild.id]["grids"]:
+            for team in guilddata[message.guild.id]["grids"][grid]["grid"]:
+                if member.id in guilddata[message.guild.id]["grids"][grid]["grid"][team]:
+                    await dnos.updateEmbed(guilddata, message.guild.id, message.guild.get_channel(int(grid)))
+                    break
+
     # Update number channel
     err = await dnos.updateDrivers(guilddata, message.guild.id)
     if err is not None:
