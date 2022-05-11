@@ -337,6 +337,8 @@ async def teamAdd(guilddata, message):
         return
 
     teamname = string.capwords(m.group(1))
+    if teamname == "Mclaren":
+        teamname = "McLaren"
     member = message.guild.get_member(int(m.group(2)))
     gridchan = message.guild.get_channel(int(m.group(3)))
 
@@ -410,6 +412,8 @@ async def teamDel(guilddata, message):
         return
 
     teamname = string.capwords(m.group(1))
+    if teamname == "Mclaren":
+        teamname = "McLaren"
     seat = int(m.group(2)) - 1
     gridchan = message.guild.get_channel(int(m.group(3)))
 
