@@ -132,14 +132,7 @@ async def updateDrivers(guilddata, guildid):
 
 def gridEmbed(guilddata, guildid, channel):
     # Get Driver Nicknames
-    nicks = {}
-    guild = _config["client"].get_guild(guildid)
-    membs = guild.members
-    for member in membs:
-        if member.nick is not None:
-            nicks[member.id] = member.nick
-        else:
-            nicks[member.id] = member.name
+    nicks = getNicks(guildid)
 
     embed = discord.Embed(
         title=channel.name,
@@ -222,6 +215,19 @@ def getEmoji(team):
     return ""
 
 
+def getNicks(guildid):
+    nicks = {}
+    guild = _config["client"].get_guild(guildid)
+    membs = guild.members
+    for member in membs:
+        if member.nick is not None:
+            nicks[member.id] = member.nick
+        else:
+            nicks[member.id] = member.name
+
+    return nicks
+
+
 async def reapExpired(guilddata):
     for guildid in guilddata:
         if guilddata[guildid]["config"]["expiration"] > 0:
@@ -235,14 +241,7 @@ async def reapExpired(guilddata):
             # Check for any deleted members (https://github.com/discord/discord-api-docs/discussions/3274)
             # If a numbered user CHANGES their name, the bot will prepend it with a number.
             # Therefore expire any numbered users that BEGIN "Deleted User"
-            nicks = {}
-            guild = _config["client"].get_guild(guildid)
-            membs = guild.members
-            for member in membs:
-                if member.nick is not None:
-                    nicks[member.id] = member.nick
-                else:
-                    nicks[member.id] = member.name
+            nicks = getNicks(guildid)
 
             for driverno in guilddata[guildid]["numbers"]:
                 nick = nicks[guilddata[guildid]["numbers"][driverno]]
@@ -250,13 +249,25 @@ async def reapExpired(guilddata):
                     expires.append(driverno)
 
             if len(expires) > 0:
+                changedGrids = set()
+
                 # Remove allocation
                 for driverno in expires:
+                    # Check if member is in any teams
+                    memberid = guilddata[guildid]["numbers"][driverno]
+                    for grid in guilddata[guildid]["grids"]:
+                        for team in guilddata[guildid]["grids"][grid]["grid"]:
+                            if memberid in guilddata[guildid]["grids"][grid]["grid"][team]:
+                                seat = guilddata[guildid]["grids"][grid]["grid"][team].index(memberid)
+                                guilddata[guildid]["grids"][grid]["grid"][team][seat] = None
+                                changedGrids.add(grid)
+
                     guilddata[guildid]["numbers"].pop(driverno)
-                    guilddata[guildid]["expires"].pop(driverno)
+
+                    if driverno in guilddata[guildid]["expires"]:
+                        guilddata[guildid]["expires"].pop(driverno)
 
                 # Update guild record
                 await updateDrivers(guilddata, guildid)
-
-        # Write reaped config
-        writeConfig(guilddata, guildid)
+                for grid in changedGrids:
+                    await updateEmbed(guilddata, guildid, _config["client"].get_guild(guildid).get_channel(int(grid)))
