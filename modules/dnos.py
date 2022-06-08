@@ -230,7 +230,9 @@ def getNicks(guildid):
 
 async def reapExpired(guilddata):
     for guildid in guilddata:
-        if guilddata[guildid]["config"]["expiration"] > 0:
+        guild = _config["client"].get_guild(guildid)
+
+        if guilddata[guildid]["config"]["expiration"] >= 0:
             expires = []
 
             for driverno in guilddata[guildid]["expires"]:
@@ -239,14 +241,15 @@ async def reapExpired(guilddata):
                     expires.append(driverno)
 
             # Check for any deleted members (https://github.com/discord/discord-api-docs/discussions/3274)
-            # If a numbered user CHANGES their name, the bot will prepend it with a number.
-            # Therefore expire any numbered users that BEGIN "Deleted User"
-            nicks = getNicks(guildid)
+            # If id not in expired list, or members, it has been deleted.
+            members = []
+            for member in guild.members:
+                members.append(member.id)
 
             for driverno in guilddata[guildid]["numbers"]:
-                nick = nicks[guilddata[guildid]["numbers"][driverno]]
-                if nick.startswith("Deleted User"):
-                    expires.append(driverno)
+                if guilddata[guildid]["numbers"][driverno] not in members:
+                    if driverno not in guilddata[guildid]["expires"]:
+                        expires.append(driverno)
 
             if len(expires) > 0:
                 changedGrids = set()
@@ -270,4 +273,4 @@ async def reapExpired(guilddata):
                 # Update guild record
                 await updateDrivers(guilddata, guildid)
                 for grid in changedGrids:
-                    await updateEmbed(guilddata, guildid, _config["client"].get_guild(guildid).get_channel(int(grid)))
+                    await updateEmbed(guilddata, guildid, guild.get_channel(int(grid)))

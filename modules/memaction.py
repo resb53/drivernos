@@ -69,15 +69,10 @@ async def handleLeaver(guilddata, member):
 
     expiration = guilddata[member.guild.id]["config"]["expiration"]
 
-    if expiration == 0:
-        # Instantly remove allocation
-        guilddata[member.guild.id]["numbers"].pop(dno)
-        await dnos.updateDrivers(guilddata, member.guild.id)
-    else:
+    if expiration >= 0:
         # Set expiry on allocation
         guilddata[member.guild.id]["expires"][dno] = int(time.time()) + expiration
-
-    dnos.writeConfig(guilddata, member.guild.id)
+        dnos.writeConfig(guilddata, member.guild.id)
 
     return
 
@@ -92,3 +87,5 @@ async def handleRejoiner(guilddata, member):
     if dno in guilddata[member.guild.id]["expires"]:
         guilddata[member.guild.id]["expires"].pop(dno)
         dnos.writeConfig(guilddata, member.guild.id)
+
+    return

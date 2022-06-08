@@ -260,7 +260,7 @@ async def setExpiry(guilddata, message):
     if m is None:
         await message.channel.send(f"Current expiry is {guilddata[message.guild.id]['config']['expiration']}.\n"
                                    "To change, provide a new value e.g: `## expiry 1209600`\n"
-                                   "Use `0` for instant release, and `-1` for never release.")
+                                   "Use `-1` to never release.")
         return
 
     guilddata[message.guild.id]["config"]["expiration"] = int(m.group(1))
