@@ -168,7 +168,7 @@ def gridEmbed(guilddata, guildid, channel):
             inline=True
         )
         perrow += 1
-        # Empty field for 2 per line
+        # Empty field for 2 per lineguilddata[guildid]["numbers"]
         if perrow == 2:
             embed.add_field(name="\u200b", value="\u200b")
             perrow = 0
@@ -230,6 +230,23 @@ async def reapExpired(guilddata):
             for driverno in guilddata[guildid]["expires"]:
                 if int(time.time()) > guilddata[guildid]["expires"][driverno]:
                     # Prep allocation for removal
+                    expires.append(driverno)
+
+            # Check for any deleted members (https://github.com/discord/discord-api-docs/discussions/3274)
+            # If a numbered user CHANGES their name, the bot will prepend it with a number.
+            # Therefore expire any numbered users that BEGIN "Deleted User"
+            nicks = {}
+            guild = _config["client"].get_guild(guildid)
+            membs = guild.members
+            for member in membs:
+                if member.nick is not None:
+                    nicks[member.id] = member.nick
+                else:
+                    nicks[member.id] = member.name
+
+            for driverno in guilddata[guildid]["numbers"]:
+                nick = nicks[guilddata[guildid]["numbers"][driverno]]
+                if nick.startswith("Deleted User"):
                     expires.append(driverno)
 
             if len(expires) > 0:
