@@ -3,11 +3,11 @@ import sys
 from modules import dnos, memaction, msgaction
 from discord.ext import tasks
 
-'''
+"""
 Discord DriverNos Bot.
 
 This is for racing leagues to help manage assignment of driver numbers, and using these in user nicknames.
-'''
+"""
 
 # Setup bot
 client = dnos.startClient(configfile="data/guilddata.json")

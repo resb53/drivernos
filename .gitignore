@@ -129,4 +129,5 @@ dmypy.json
 .pyre/
 
 # DriverNos
-data/
+data/guilddata.json
+guilddata.json

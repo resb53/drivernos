@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   drivernos:
-    image: resb53/drivernos:latest
+    image: resb53/drivernos:0.13
     logging:
       driver: "json-file"
       options:
@@ -11,7 +11,7 @@ services:
     secrets:
       - drivernos-secret
     volumes:
-      - .:/run/app/data:rw
+      - /home/morphos/data:/run/app/data:rw
 
 secrets:
   drivernos-secret:
