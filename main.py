@@ -106,9 +106,9 @@ token = os.getenv("TOKEN")
 
 if token is None:
     try:
-        token_fh = open("/run/secrets/drivernos-secret")
+        token_fh = open("/drivernos/secrets/drivernos-secret")
     except IOError:
-        sys.exit("Unable to find bot token.")
+        sys.exit("find bot token.")
 
     token = token_fh.read()
 

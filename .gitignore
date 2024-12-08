@@ -131,3 +131,4 @@ dmypy.json
 # DriverNos
 data/guilddata.json
 guilddata.json
+secrets/drivernos-secret
