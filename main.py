@@ -3,11 +3,11 @@ import sys
 from modules import dnos, memaction, msgaction
 from discord.ext import tasks
 
-'''
+"""
 Discord DriverNos Bot.
 
 This is for racing leagues to help manage assignment of driver numbers, and using these in user nicknames.
-'''
+"""
 
 # Setup bot
 client = dnos.startClient(configfile="data/guilddata.json")
@@ -106,9 +106,9 @@ token = os.getenv("TOKEN")
 
 if token is None:
     try:
-        token_fh = open("/run/secrets/drivernos-secret")
+        token_fh = open("/drivernos/secrets/drivernos-secret")
     except IOError:
-        sys.exit("Unable to find bot token.")
+        sys.exit("find bot token.")
 
     token = token_fh.read()
 

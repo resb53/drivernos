@@ -1,6 +1,7 @@
-'''
+"""
 Internal functions for DriverNos Bot Operation, and related features.
-'''
+"""
+
 import sys
 import json
 import discord
@@ -8,10 +9,7 @@ import time
 from . import permissions
 
 # Module-wide globals
-_config = {
-    "file": None,
-    "client": None
-}
+_config = {"file": None, "client": None}
 
 
 def startClient(configfile="filename"):
@@ -35,13 +33,13 @@ def readConfig():
     config = {}
 
     try:
-        input_fh = open(_config["file"], 'r')
+        input_fh = open(_config["file"], "r")
         config = json.load(input_fh)
 
         # Convert JSON string keys to ints
         config = {int(k): v for k, v in config.items()}
     except IOError:
-        print("Unable to open input file: " + _config["file"] + ", creating fresh data.")
+        print("open input file: " + _config["file"] + ", creating fresh data.")
 
     return config
 
@@ -52,17 +50,17 @@ def writeConfig(guilddata, gid):
 
     # Test minimal output
     try:
-        _ = json.dumps(alldata, separators=(',', ':'))
+        _ = json.dumps(alldata, separators=(",", ":"))
     except TypeError as err:
         sys.exit(f"Unable to write new config due to TypeError in guilddata: {err}")
 
     # Write config
     try:
-        output_fh = open(_config["file"], 'w')
+        output_fh = open(_config["file"], "w")
     except IOError:
         sys.exit("Unable to open output file: " + _config["file"])
 
-    json.dump(alldata, output_fh, separators=(',', ':'))
+    json.dump(alldata, output_fh, separators=(",", ":"))
 
     return
 
@@ -72,12 +70,12 @@ def removeConfig(gid):
     alldata.pop(gid)
 
     try:
-        output_fh = open(_config["file"], 'w')
+        output_fh = open(_config["file"], "w")
     except IOError:
         sys.exit("Unable to open output file: " + _config["file"])
 
     # Minify output
-    json.dump(alldata, output_fh, separators=(',', ':'))
+    json.dump(alldata, output_fh, separators=(",", ":"))
 
     return
 
@@ -118,8 +116,10 @@ async def updateDrivers(guilddata, guildid):
     numchan = guild.get_channel(guilddata[guildid]["config"]["numchanid"])
 
     if numchan is None:
-        return ("Unable to update records due to channel no longer existing. "
-                "Use `## move new-channel-name` to set this channel for DriverNos use.")
+        return (
+            "Unable to update records due to channel no longer existing. "
+            "Use `## move new-channel-name` to set this channel for DriverNos use."
+        )
 
     numbers = formatDrivers(guilddata, guildid)
 
@@ -134,10 +134,7 @@ def gridEmbed(guilddata, guildid, channel):
     # Get Driver Nicknames
     nicks = getNicks(guildid)
 
-    embed = discord.Embed(
-        title=channel.name,
-        color=discord.Color.gold()
-    )
+    embed = discord.Embed(title=channel.name, color=discord.Color.gold())
 
     emoji = getEmojis()
 
@@ -145,7 +142,10 @@ def gridEmbed(guilddata, guildid, channel):
 
     for team in guilddata[guildid]["grids"][str(channel.id)]["grid"]:
         temoji = str(emoji[team.lower().replace(" ", "")])
-        drivers = ["\u2800" * 4 + "--" + "\u2800" * 4, "\u2800" * 4 + "--" + "\u2800" * 4]
+        drivers = [
+            "\u2800" * 4 + "--" + "\u2800" * 4,
+            "\u2800" * 4 + "--" + "\u2800" * 4,
+        ]
         memberids = guilddata[guildid]["grids"][str(channel.id)]["grid"][team]
 
         for seat, memberid in enumerate(memberids):
@@ -153,13 +153,11 @@ def gridEmbed(guilddata, guildid, channel):
                 if memberid in nicks:
                     drivers[seat] = nicks[memberid].translate(str.maketrans("|", "/"))
                 else:
-                    drivers[seat] = f"`{getNumFromId(guilddata, guildid, memberid)} // <Unknown>`"
+                    drivers[seat] = (
+                        f"`{getNumFromId(guilddata, guildid, memberid)} // <Unknown>`"
+                    )
 
-        embed.add_field(
-            name=f"{temoji} {team}",
-            value="\n".join(drivers),
-            inline=True
-        )
+        embed.add_field(name=f"{temoji} {team}", value="\n".join(drivers), inline=True)
         perrow += 1
         # Empty field for 2 per lineguilddata[guildid]["numbers"]
         if perrow == 2:
@@ -171,12 +169,11 @@ def gridEmbed(guilddata, guildid, channel):
 
 async def updateEmbed(guilddata, guildid, channel):
     # Get message
-    msg = await channel.fetch_message(guilddata[guildid]["grids"][str(channel.id)]["msg"])
-
-    await msg.edit(
-        content=None,
-        embed=gridEmbed(guilddata, guildid, channel)
+    msg = await channel.fetch_message(
+        guilddata[guildid]["grids"][str(channel.id)]["msg"]
     )
+
+    await msg.edit(content=None, embed=gridEmbed(guilddata, guildid, channel))
 
     return
 
@@ -260,9 +257,16 @@ async def reapExpired(guilddata):
                     memberid = guilddata[guildid]["numbers"][driverno]
                     for grid in guilddata[guildid]["grids"]:
                         for team in guilddata[guildid]["grids"][grid]["grid"]:
-                            if memberid in guilddata[guildid]["grids"][grid]["grid"][team]:
-                                seat = guilddata[guildid]["grids"][grid]["grid"][team].index(memberid)
-                                guilddata[guildid]["grids"][grid]["grid"][team][seat] = None
+                            if (
+                                memberid
+                                in guilddata[guildid]["grids"][grid]["grid"][team]
+                            ):
+                                seat = guilddata[guildid]["grids"][grid]["grid"][
+                                    team
+                                ].index(memberid)
+                                guilddata[guildid]["grids"][grid]["grid"][team][
+                                    seat
+                                ] = None
                                 changedGrids.add(grid)
 
                     guilddata[guildid]["numbers"].pop(driverno)
