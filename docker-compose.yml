@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   drivernos:
-    image: jackson147/drivernos:0.13
+    image: jackson147/drivernos:0.2
     logging:
       driver: "json-file"
       options:
