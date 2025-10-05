@@ -2,17 +2,14 @@ version: "3.8"
 
 services:
   drivernos:
-    image: resb53/drivernos:latest
+    image: jackson147/drivernos:0.2
     logging:
       driver: "json-file"
       options:
         max-size: "5m"
         max-file: "12"
-    secrets:
-      - drivernos-secret
+    environment:
+      - TOKEN=deadbeef-a7c6-46d9-8d10-deadbeef
     volumes:
-      - .:/run/app/data:rw
-
-secrets:
-  drivernos-secret:
-    external: true
+      - ./secrets/:/drivernos/secrets:rw
+      - /home/morphos/data:/run/app/data:rw
