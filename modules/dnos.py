@@ -39,7 +39,7 @@ def readConfig():
         # Convert JSON string keys to ints
         config = {int(k): v for k, v in config.items()}
     except IOError:
-        print("open input file: " + _config["file"] + ", creating fresh data.")
+        print("Unable to open input file: " + _config["file"] + ", creating fresh data.")
 
     return config
 
